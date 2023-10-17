@@ -1,4 +1,4 @@
-([日本語で](#OepnPraparatヘルパー))
+([日本語で](#OpenPraparatヘルパー))
 
 OpenPraparatHelper
 ======
