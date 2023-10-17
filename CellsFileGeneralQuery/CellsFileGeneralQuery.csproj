@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>furaku.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenPraparatHelper\OpenPraparatHelper.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if not exist &quot;$(SolutionDir)OpenPraparatHelper\bin\$(Configuration)\net6.0-windows\plugins\&quot; mkdir &quot;$(SolutionDir)OpenPraparatHelper\bin\$(Configuration)\net6.0-windows\plugins\&quot;&#xD;&#xA;del &quot;$(SolutionDir)OpenPraparatHelper\bin\$(Configuration)\net6.0-windows\plugins\$(TargetName).*&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)OpenPraparatHelper\bin\$(Configuration)\net6.0-windows\plugins\&quot;&#xD;&#xA;ren &quot;$(SolutionDir)OpenPraparatHelper\bin\$(Configuration)\net6.0-windows\plugins\$(TargetFileName)&quot; $(TargetName).cap" />
+  </Target>
+
+</Project>
