@@ -25,7 +25,7 @@ OpenPraparatヘルパー
 ======
 
 ## 概要
-このアプリケーション[OepnParapart](https://github.com/A5size/OpenPraparat) の出力を解析を助けるものです。
+このアプリケーション[OepnParapart](https://github.com/A5size/OpenPraparat) の出力の解析を助けるものです。
 
 ## 依存要件
 * .Net 6.0 ~
