@@ -38,15 +38,15 @@ public class CellEntity : ParticleEntity
 	[Column("radius")]
 	public virtual decimal Radius { get; set; }
 
-	/// <summary>光赤吸収率</summary>
+	/// <summary>光赤吸収率赤色</summary>
 	[Column("alpha_channel_red")]
 	public virtual decimal AlphaChannelRed { get; set; }
 
-	/// <summary>光緑吸収率</summary>
+	/// <summary>光緑吸収率緑色</summary>
 	[Column("alpha_channel_green")]
 	public virtual decimal AlphaChannelGreen { get; set; }
 
-	/// <summary>光青吸収率</summary>
+	/// <summary>光青吸収率青色</summary>
 	[Column("alpha_channel_blue")]
 	public virtual decimal AlphaChannelBlue { get; set; }
 

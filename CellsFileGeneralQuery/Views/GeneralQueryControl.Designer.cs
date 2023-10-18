@@ -88,7 +88,7 @@ partial class GeneralQueryControl
 		startPanel.Location = new Point(0, 0);
 		startPanel.Name = "startPanel";
 		startPanel.Size = new Size(800, 426);
-		startPanel.TabIndex = 1;
+		startPanel.TabIndex = 0;
 		// 
 		// outputBox
 		// 
@@ -98,7 +98,7 @@ partial class GeneralQueryControl
 		outputBox.Name = "outputBox";
 		outputBox.ReadOnly = true;
 		outputBox.Size = new Size(780, 203);
-		outputBox.TabIndex = 0;
+		outputBox.TabIndex = 11;
 		outputBox.Text = "";
 		outputBox.WordWrap = false;
 		// 
@@ -112,7 +112,7 @@ partial class GeneralQueryControl
 		outputTab.Name = "outputTab";
 		outputTab.SelectedIndex = 0;
 		outputTab.Size = new Size(794, 237);
-		outputTab.TabIndex = 1;
+		outputTab.TabIndex = 9;
 		// 
 		// tabPage1
 		// 
@@ -131,7 +131,7 @@ partial class GeneralQueryControl
 		resultFindView.Location = new Point(3, 3);
 		resultFindView.Name = "resultFindView";
 		resultFindView.Size = new Size(780, 203);
-		resultFindView.TabIndex = 0;
+		resultFindView.TabIndex = 9;
 		// 
 		// tabPage3
 		// 
@@ -162,7 +162,7 @@ partial class GeneralQueryControl
 		resultQueryView.ShowEditingIcon = false;
 		resultQueryView.ShowRowErrors = false;
 		resultQueryView.Size = new Size(786, 209);
-		resultQueryView.TabIndex = 0;
+		resultQueryView.TabIndex = 10;
 		// 
 		// Number
 		// 
@@ -220,7 +220,7 @@ partial class GeneralQueryControl
 		queryButton.Location = new Point(678, 89);
 		queryButton.Name = "queryButton";
 		queryButton.Size = new Size(113, 85);
-		queryButton.TabIndex = 8;
+		queryButton.TabIndex = 7;
 		queryButton.Text = "問い合わせ(&Q)";
 		queryButton.UseVisualStyleBackColor = true;
 		queryButton.Click += QueryButton_Click;
@@ -231,7 +231,7 @@ partial class GeneralQueryControl
 		findButton.Location = new Point(678, 30);
 		findButton.Name = "findButton";
 		findButton.Size = new Size(113, 53);
-		findButton.TabIndex = 7;
+		findButton.TabIndex = 4;
 		findButton.Text = "検索(&F)";
 		findButton.UseVisualStyleBackColor = true;
 		findButton.Click += FindButton_Click;
@@ -271,8 +271,10 @@ partial class GeneralQueryControl
 		findSQLBox.Location = new Point(136, 30);
 		findSQLBox.Multiline = true;
 		findSQLBox.Name = "findSQLBox";
+		findSQLBox.ScrollBars = ScrollBars.Both;
 		findSQLBox.Size = new Size(536, 53);
 		findSQLBox.TabIndex = 3;
+		findSQLBox.WordWrap = false;
 		// 
 		// label2
 		// 
@@ -281,7 +283,7 @@ partial class GeneralQueryControl
 		label2.Location = new Point(3, 27);
 		label2.Name = "label2";
 		label2.Size = new Size(127, 59);
-		label2.TabIndex = 5;
+		label2.TabIndex = 3;
 		label2.Text = "検索SQL(&N)";
 		label2.TextAlign = ContentAlignment.MiddleLeft;
 		// 
@@ -313,8 +315,10 @@ partial class GeneralQueryControl
 		scalarSQLBox.Location = new Point(3, 32);
 		scalarSQLBox.Multiline = true;
 		scalarSQLBox.Name = "scalarSQLBox";
+		scalarSQLBox.ScrollBars = ScrollBars.Both;
 		scalarSQLBox.Size = new Size(536, 56);
-		scalarSQLBox.TabIndex = 10;
+		scalarSQLBox.TabIndex = 6;
+		scalarSQLBox.WordWrap = false;
 		// 
 		// scalarTypeBox
 		// 
@@ -323,7 +327,7 @@ partial class GeneralQueryControl
 		scalarTypeBox.Location = new Point(3, 3);
 		scalarTypeBox.Name = "scalarTypeBox";
 		scalarTypeBox.Size = new Size(94, 23);
-		scalarTypeBox.TabIndex = 0;
+		scalarTypeBox.TabIndex = 5;
 		// 
 		// outputViewTimer
 		// 

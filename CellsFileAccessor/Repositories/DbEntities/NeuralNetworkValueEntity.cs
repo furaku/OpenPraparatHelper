@@ -18,7 +18,7 @@ public class NeuralNetworkValueEntity
 	public virtual int CellID { get; set; }
 
 	/// <summary>インデックス</summary>
-	[Column("indexa")]
+	[Column("index_")]
 	public virtual int Index { get; set; }
 
 	/// <summary>出力か</summary>

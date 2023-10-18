@@ -86,15 +86,15 @@ public class ParticleEntity
 	[Column("color_blue")]
 	public virtual decimal ColorBlue { get; set; }
 
-	/// <summary>光赤</summary>
+	/// <summary>光赤色</summary>
 	[Column("light_red")]
 	public virtual decimal LigthRed { get; set; }
 
-	/// <summary>光緑</summary>
+	/// <summary>光緑色</summary>
 	[Column("light_green")]
 	public virtual decimal LigthGreen { get; set; }
 
-	/// <summary>光青</summary>
+	/// <summary>光青色</summary>
 	[Column("light_blue")]
 	public virtual decimal LigthBlue { get; set; }
 

@@ -39,16 +39,28 @@ public class CellsFileAccessor : IDisposable
 		Action<IProcessMessage>? processMessageEnqueueMethod = null,
 		params int[] ids)
 	{
-		var containsIds = this.CellSqliteRepository.Query<int>($@"
+
+		var particles = new ParticleInFile(this.FilePath)
+			.Find(null, processMessageEnqueueMethod, ids);
+
+		int[] containsIds;
+		if (ids.Length > 0)
+		{
+			containsIds = this.CellSqliteRepository.Query<int>($@"
 SELECT t_cell.cell_id
 	FROM t_cell
 	WHERE t_cell.cell_id IN ({string.Join(',', ids)})
-");
+").ToArray();
+		}
+		else
+		{
+			containsIds = this.CellSqliteRepository.Query<int>($@"
+SELECT t_cell.cell_id
+	FROM t_cell
+").ToArray();
+		}
 
-		var exceptIds = ids.Except(containsIds).ToArray();
-		var particles = new ParticleInFile(this.FilePath)
-			.Find(null, processMessageEnqueueMethod, exceptIds);
-		this.CellSqliteRepository.Marge(particles.Cast<Cell>(), cancellationToken, processMessageEnqueueMethod);
+		this.CellSqliteRepository.Marge(particles.Where(elem => !containsIds.Contains(elem.ID)).Cast<Cell>(), cancellationToken, processMessageEnqueueMethod);
 	}
 
 	/// <summary>検索</summary>

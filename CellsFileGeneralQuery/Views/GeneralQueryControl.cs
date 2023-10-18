@@ -240,8 +240,9 @@ public partial class GeneralQueryControl : UserControl, IExtend
 					.ToArray();
 				});
 				this.Task = task;
+				var elements = await task.Start();
 				this.resultFindView.BeginUpdate();
-				this.resultFindView.Nodes.AddRange(await task.Start());
+				this.resultFindView.Nodes.AddRange(elements);
 				this.resultFindView.EndUpdate();
 				this.outputTab.SelectedIndex = 0;
 				this.ShowMessageBox(MessageBoxMessage.COMPLETE_FIND);

@@ -401,7 +401,7 @@ s
 				{
 					sql = @$"INSERT INTO t_nuralnetowork_value (
 cell_id,
-indexa,
+index_,
 is_output,
 is_weight,
 value
