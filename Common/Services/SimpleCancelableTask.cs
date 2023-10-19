@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace furaku.CellsFileAccessorLib.Services;
+namespace furaku.Common.Services;
 
 /// <summary>簡易キャンセル可能タスク</summary>
 public class SimpleCancelableTask<R> : ISimpleCancelableTask

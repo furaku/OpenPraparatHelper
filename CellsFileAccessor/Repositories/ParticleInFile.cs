@@ -1,5 +1,6 @@
 ﻿using furaku.CellsFileAccessorLib.Services;
 using furaku.CellsFileAccessorLib.Values;
+using furaku.Common.Services;
 using furaku.Common.Values;
 using System;
 using System.Collections.Generic;
@@ -137,14 +138,6 @@ public class ParticleInFile : Repository<IParticle>
 				cancellationToken?.ThrowIfCancellationRequested();
 				particle = ReadParticle(sr);
 			}
-			catch (FileNotFoundException ex)
-			{
-				throw new FailToFileAccessException(ex.Message, ex);
-			}
-			catch (DirectoryNotFoundException ex)
-			{
-				throw new FailToFileAccessException(ex.Message, ex);
-			}
 			catch (IOException ex)
 			{
 				throw new FailToFileAccessException(ex.Message, ex);
@@ -193,7 +186,6 @@ public class ParticleInFile : Repository<IParticle>
 		finally
 		{
 			sr?.Dispose();
-
 		}
 		processMessageEnqueueMethod?.Invoke(new EndFindParticleFromFile(this));
 	}

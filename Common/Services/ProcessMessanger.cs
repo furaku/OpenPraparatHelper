@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace furaku.CellsFileAccessorLib.Services;
+namespace furaku.Common.Services;
 
 /// <summary>工程メッセージ</summary>
 /// <typeparam name="S">送信者の型</typeparam>

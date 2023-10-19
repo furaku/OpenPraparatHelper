@@ -11,15 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CellsFileAccessorLib", "Cel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CellsFileGeneralQuery", "CellsFileGeneralQuery\CellsFileGeneralQuery.csproj", "{CFCDD7F4-67D5-48E7-AAEA-5A81DB2E2E72}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenPraparatHelperCommandlet", "OpenPraparatHelperCommandlet\OpenPraparatHelperCommandlet.csproj", "{1834B2E0-9639-41BF-8753-A903E28B7DE2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D261D7C5-19AE-4C54-9926-BE2226DDB327} = {D261D7C5-19AE-4C54-9926-BE2226DDB327}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandletTestApp", "CommandletTestApp\CommandletTestApp.csproj", "{9F9A39F6-D478-4367-8C5A-32B0943C6829}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1834B2E0-9639-41BF-8753-A903E28B7DE2} = {1834B2E0-9639-41BF-8753-A903E28B7DE2}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutputAnalyzer", "OutputAnalyzer\OutputAnalyzer.csproj", "{A67654DA-E2D5-463C-93C8-BFEE82D1B449}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,14 +35,10 @@ Global
 		{CFCDD7F4-67D5-48E7-AAEA-5A81DB2E2E72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFCDD7F4-67D5-48E7-AAEA-5A81DB2E2E72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFCDD7F4-67D5-48E7-AAEA-5A81DB2E2E72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1834B2E0-9639-41BF-8753-A903E28B7DE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1834B2E0-9639-41BF-8753-A903E28B7DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1834B2E0-9639-41BF-8753-A903E28B7DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1834B2E0-9639-41BF-8753-A903E28B7DE2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F9A39F6-D478-4367-8C5A-32B0943C6829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F9A39F6-D478-4367-8C5A-32B0943C6829}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F9A39F6-D478-4367-8C5A-32B0943C6829}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F9A39F6-D478-4367-8C5A-32B0943C6829}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A67654DA-E2D5-463C-93C8-BFEE82D1B449}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A67654DA-E2D5-463C-93C8-BFEE82D1B449}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A67654DA-E2D5-463C-93C8-BFEE82D1B449}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A67654DA-E2D5-463C-93C8-BFEE82D1B449}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
