@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace furaku.OutputAnalyzer;
@@ -23,8 +24,8 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	/// <summary>OpenPraparatを実行しているプロセス</summary>
 	protected virtual Process? Process { get; set; }
 
-	/// <summary>新しく追加された出力</summary>
-	protected virtual ConcurrentQueue<string> OutputNewLines { get; }
+	/// <summary>出力新規追加行</summary>
+	protected virtual List<(string, Color)> OutputNewLines { get; }
 
 	/// <summary>実行中の出力中か</summary>
 	public virtual bool IsProcessing { get; protected set; }
@@ -34,30 +35,20 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	{
 		InitializeComponent();
 
+		this.outputBox.MaxLines = 30000;
+		this.outputBox.SelectedColor = Color.DeepSkyBlue;
 		this.Dock = DockStyle.Fill;
 		this.OutputNewLines = new();
 		this.IsProcessing = false;
-		var lines = new List<string>();
 		this.timer.Tick += (s, e) =>
 		{
-			var newLines = new List<string>();
-			while (this.OutputNewLines.TryDequeue(out var line))
+			(string, Color)[] lines;
+			lock (this.OutputNewLines)
 			{
-				newLines.Add(line);
+				lines = this.OutputNewLines.ToArray();
+				this.OutputNewLines.Clear();
 			}
-			if (newLines.Count > 0)
-			{
-				lines.AddRange(newLines);
-				if (lines.Count > (int.MaxValue / 256))
-				{
-					lines.RemoveRange(0, lines.Count - (int.MaxValue / 256));
-				}
-				var newText = string.Join(Environment.NewLine, lines);
-				this.outputBox.Text = newText;
-				this.outputBox.SelectionStart = newText.Length;
-				this.outputBox.ScrollToCaret();
-
-			}
+			this.outputBox.AppendLine(lines);
 		};
 		this.timer.Start();
 	}
@@ -67,116 +58,177 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	/// <param name="e">イベント引数</param>
 	protected virtual void ExecuteButton_Click(object sender, EventArgs e)
 	{
-		this.SetIsExecuting(true);
-		try
+		if (this.Process is null)
 		{
-			this.Process = new Process();
-			this.Process.StartInfo.FileName = this.openpraparatPathBox.Text.Trim();
-			this.Process.StartInfo.UseShellExecute = false;
-			this.Process.StartInfo.RedirectStandardOutput = true;
-			this.Process.StartInfo.RedirectStandardError = true;
-			this.Process.StartInfo.CreateNoWindow = true;
+			this.SetIsExecuting(true);
 			try
 			{
-				this.Process.Start();
-			}
-			catch (Win32Exception ex)
-			{
-				throw new FaileToAccessFileException(this.Process.StartInfo.FileName, ex);
-			}
-			catch (InvalidOperationException ex)
-			{
-				throw new FaileToAccessFileException(this.Process.StartInfo.FileName, ex);
-			}
-			Task.Run(() =>
-			{
-				StreamWriter? logWriterOrg = null; ;
-				TextWriter? logWriter = null;
-				StreamWriter? csvWriterOrg = null;
-				TextWriter? csvWriter = null;
+				this.Process = new Process();
+				this.Process.StartInfo.FileName = this.openpraparatPathBox.Text.Trim();
+				this.Process.StartInfo.UseShellExecute = false;
+				this.Process.StartInfo.RedirectStandardOutput = true;
+				this.Process.StartInfo.RedirectStandardError = true;
+				this.Process.StartInfo.CreateNoWindow = true;
 				try
 				{
-					var logfilePath = this.logfilePathBox.Text.Trim();
-					if (!string.IsNullOrWhiteSpace(logfilePath))
+					this.Process.Start();
+				}
+				catch (Win32Exception ex)
+				{
+					throw new FaileToAccessFileException(this.Process.StartInfo.FileName, ex);
+				}
+				catch (InvalidOperationException ex)
+				{
+					throw new FaileToAccessFileException(this.Process.StartInfo.FileName, ex);
+				}
+				Task.Run(() =>
+				{
+					StreamWriter? logWriterOrg = null; ;
+					TextWriter? logWriter = null;
+					StreamWriter? csvWriterOrg = null;
+					TextWriter? csvWriter = null;
+					try
 					{
+						var logfilePath = this.logfilePathBox.Text.Trim();
+						var logNumber = 0;
+						if (!string.IsNullOrWhiteSpace(logfilePath))
+						{
+							try
+							{
+								logWriterOrg = new(logfilePath + "_" + logNumber++);
+								logWriter = TextWriter.Synchronized(logWriterOrg);
+							}
+							catch (IOException)
+							{
+								this.Invoke(() =>
+								{
+									this.ShowMessageBox(logfilePath);
+								});
+							}
+							catch (UnauthorizedAccessException)
+							{
+								this.Invoke(() =>
+								{
+									this.ShowMessageBox(logfilePath);
+								});
+							}
+						}
+						var csvfilePath = this.csvfilePathBox.Text.Trim();
+						if (!string.IsNullOrWhiteSpace(csvfilePath))
+						{
+							try
+							{
+								csvWriterOrg = new(csvfilePath);
+								csvWriter = TextWriter.Synchronized(csvWriterOrg);
+							}
+							catch (IOException)
+							{
+								this.Invoke(() =>
+								{
+									this.ShowMessageBox(csvfilePath);
+								});
+							}
+							catch (UnauthorizedAccessException)
+							{
+								this.Invoke(() =>
+								{
+									this.ShowMessageBox(csvfilePath);
+								});
+							}
+						}
+						var reader = this.Process.StandardOutput;
 						try
 						{
-							logWriterOrg = new(logfilePath);
+							var count = 0;
+							while (!this.Process.WaitForExit(0))
+							{
+								var line = reader.ReadLine();
+								while (line is not null)
+								{
+									lock (this.OutputNewLines)
+									{
+										this.OutputNewLines.Add((line, Color.Empty));
+									}
+									logWriter?.WriteLineAsync(line);
+									this.WriteLineToCsv(csvWriter, line);
+									line = reader.ReadLine();
+									if (logWriter is not null)
+									{
+										count = (count + 1) % (int)this.rotaionBox.Value;
+										if (count == 0)
+										{
+											logWriter?.Dispose();
+											logWriterOrg?.Dispose();
+											try
+											{
+												logWriterOrg = new(logfilePath + "_" + logNumber++);
+												logWriter = TextWriter.Synchronized(logWriterOrg);
+											}
+											catch (IOException)
+											{
+												this.Invoke(() =>
+												{
+													this.ShowMessageBox(logfilePath);
+												});
+											}
+											catch (UnauthorizedAccessException)
+											{
+												this.Invoke(() =>
+												{
+													this.ShowMessageBox(logfilePath);
+												});
+											}
+										}
+									}
+								}
+							}
 						}
-						catch (IOException ex)
-						{
-							throw new FaileToAccessFileException(logfilePath, ex);
-						}
-						catch (UnauthorizedAccessException ex)
-						{
-							throw new FaileToAccessFileException(logfilePath, ex);
-						}
-						logWriter = TextWriter.Synchronized(logWriterOrg);
+						catch (ExternalException) { }
+						catch (InvalidOperationException) { }
 					}
-					var csvfilePath = this.csvfilePathBox.Text.Trim();
-					if (!string.IsNullOrWhiteSpace(csvfilePath))
+					finally
 					{
-						try
-						{
-							csvWriterOrg = new(csvfilePath);
-						}
-						catch (IOException ex)
-						{
-							throw new FaileToAccessFileException(csvfilePath, ex);
-						}
-						catch (UnauthorizedAccessException ex)
-						{
-							throw new FaileToAccessFileException(csvfilePath, ex);
-						}
-						csvWriter = TextWriter.Synchronized(csvWriterOrg);
+						logWriter?.Dispose();
+						logWriterOrg?.Dispose();
+						csvWriter?.Dispose();
+						csvWriterOrg?.Dispose();
+						this.Process.Dispose();
+						this.Process = null;
+						this.Invoke(() => this.SetIsExecuting(false));
 					}
-					var reader = this.Process.StandardOutput;
-					while (!this.Process.WaitForExit(0))
-					{
-						var line = reader.ReadLine();
-						while (line is not null)
-						{
-							this.OutputNewLines.Enqueue(line);
-							logWriter?.WriteLineAsync(line);
-							this.WriteLineToCsv(csvWriter, line);
-							line = reader.ReadLine();
-						}
-					}
-				}
-				catch (FaileToAccessFileException ex)
+				});
+				Task.Run(() =>
 				{
-					this.Invoke(() =>
+					var reader = this.Process.StandardError;
+					try
 					{
-						MessageBox.Show(this, "ファイルにアクセス出来ませんでした。\nパス：" + ex.Path, this.DefaultTabName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-					});
-				}
-				finally
-				{
-					logWriter?.Dispose();
-					logWriterOrg?.Dispose();
-					csvWriter?.Dispose();
-					csvWriterOrg?.Dispose();
-					this.Invoke(() => this.SetIsExecuting(false));
-				}
-			});
-			Task.Run(() =>
+						while (!this.Process.WaitForExit(0))
+						{
+							var line = reader.ReadLine();
+							while (line is not null)
+							{
+								lock (this.OutputNewLines)
+								{
+									this.OutputNewLines.Add((line, Color.Red));
+								}
+								line = reader.ReadLine();
+							}
+						}
+					}
+					catch (ExternalException) { }
+					catch (InvalidOperationException) { }
+					catch (NullReferenceException) { }
+				});
+			}
+			catch (FaileToAccessFileException ex)
 			{
-				var reader = this.Process.StandardError;
-				while (!this.Process.WaitForExit(0))
-				{
-					var line = reader.ReadLine();
-					while (line is not null)
-					{
-						this.OutputNewLines.Enqueue(line);
-						line = reader.ReadLine();
-					}
-				}
-			});
+				this.ShowMessageBox(ex.Path);
+				this.SetIsExecuting(false);
+			}
 		}
-		catch (FaileToAccessFileException ex)
+		else
 		{
-			MessageBox.Show(this, "ファイルにアクセス出来ませんでした。\nパス：" + ex.Path, this.DefaultTabName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-			this.SetIsExecuting(false);
+			this.Process.Kill(true);
 		}
 	}
 
@@ -189,7 +241,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 		this.openpraparatPathBox.Enabled = !isExecuting;
 		this.logfilePathBox.Enabled = !isExecuting;
 		this.csvfilePathBox.Enabled = !isExecuting;
-		this.executeButton.Enabled = !isExecuting;
+		this.executeButton.Text = isExecuting ? "停止(&G)" : "実行(&G)";
 	}
 
 	/// <summary>行をCSVに書き出し</summary>
@@ -332,6 +384,13 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 				writer?.WriteAsync(",");
 			}
 		}
+	}
+
+	/// <summary>メッセージボックスを表示</summary>
+	/// <param name="path">パス</param>
+	protected virtual void ShowMessageBox(string path)
+	{
+		MessageBox.Show(this, "ファイルにアクセス出来ませんでした。" + Environment.NewLine + "パス：" + path, this.DefaultTabName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
 	/// <inheritdoc/>

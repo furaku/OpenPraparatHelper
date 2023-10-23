@@ -32,12 +32,15 @@ partial class OutputAnalyzerControl
 		label1 = new Label();
 		executeButton = new Button();
 		openpraparatPathBox = new TextBox();
-		outputBox = new TextBox();
 		timer = new System.Windows.Forms.Timer(components);
 		logfilePathBox = new TextBox();
 		csvfilePathBox = new TextBox();
 		label2 = new Label();
 		label3 = new Label();
+		outputBox = new Common.Views.ConsoleControl();
+		rotaionBox = new NumericUpDown();
+		label4 = new Label();
+		((System.ComponentModel.ISupportInitialize)rotaionBox).BeginInit();
 		SuspendLayout();
 		// 
 		// label1
@@ -67,20 +70,6 @@ partial class OutputAnalyzerControl
 		openpraparatPathBox.Name = "openpraparatPathBox";
 		openpraparatPathBox.Size = new Size(616, 23);
 		openpraparatPathBox.TabIndex = 1;
-		// 
-		// outputBox
-		// 
-		outputBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-		outputBox.BackColor = SystemColors.Window;
-		outputBox.Location = new Point(3, 119);
-		outputBox.MaxLength = int.MaxValue;
-		outputBox.Multiline = true;
-		outputBox.Name = "outputBox";
-		outputBox.ReadOnly = true;
-		outputBox.ScrollBars = ScrollBars.Both;
-		outputBox.Size = new Size(794, 304);
-		outputBox.TabIndex = 7;
-		outputBox.WordWrap = false;
 		// 
 		// logfilePathBox
 		// 
@@ -116,21 +105,55 @@ partial class OutputAnalyzerControl
 		label3.TabIndex = 4;
 		label3.Text = "CSVファイルパス(&C)";
 		// 
+		// outputBox
+		// 
+		outputBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+		outputBox.BackColor = SystemColors.Window;
+		outputBox.BorderStyle = BorderStyle.Fixed3D;
+		outputBox.Location = new Point(3, 119);
+		outputBox.MaxLines = 0;
+		outputBox.Name = "outputBox";
+		outputBox.Size = new Size(794, 304);
+		outputBox.TabIndex = 7;
+		// 
+		// rotaionBox
+		// 
+		rotaionBox.Location = new Point(181, 90);
+		rotaionBox.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+		rotaionBox.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+		rotaionBox.Name = "rotaionBox";
+		rotaionBox.Size = new Size(120, 23);
+		rotaionBox.TabIndex = 8;
+		rotaionBox.TextAlign = HorizontalAlignment.Right;
+		rotaionBox.Value = new decimal(new int[] { 10000, 0, 0, 0 });
+		// 
+		// label4
+		// 
+		label4.AutoSize = true;
+		label4.Location = new Point(3, 94);
+		label4.Name = "label4";
+		label4.Size = new Size(105, 15);
+		label4.TabIndex = 9;
+		label4.Text = "ローテーション行数(&L)";
+		// 
 		// OutputAnalyzerControl
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
+		Controls.Add(label4);
+		Controls.Add(rotaionBox);
+		Controls.Add(outputBox);
 		Controls.Add(label3);
 		Controls.Add(label2);
 		Controls.Add(csvfilePathBox);
 		Controls.Add(logfilePathBox);
-		Controls.Add(outputBox);
 		Controls.Add(executeButton);
 		Controls.Add(label1);
 		Controls.Add(openpraparatPathBox);
 		Margin = new Padding(0);
 		Name = "OutputAnalyzerControl";
 		Size = new Size(800, 426);
+		((System.ComponentModel.ISupportInitialize)rotaionBox).EndInit();
 		ResumeLayout(false);
 		PerformLayout();
 	}
@@ -139,10 +162,12 @@ partial class OutputAnalyzerControl
 	private TextBox openpraparatPathBox;
 	private Label label1;
 	private Button executeButton;
-	private TextBox outputBox;
 	private System.Windows.Forms.Timer timer;
 	private TextBox logfilePathBox;
 	private TextBox csvfilePathBox;
 	private Label label2;
 	private Label label3;
+	private Common.Views.ConsoleControl outputBox;
+	private NumericUpDown rotaionBox;
+	private Label label4;
 }

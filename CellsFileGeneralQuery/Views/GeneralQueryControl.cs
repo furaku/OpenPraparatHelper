@@ -484,7 +484,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 				MessageBox.Show(this, "IDの指定が不正です。", this.DefaultTabName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				break;
 			case MessageBoxMessage.INVALID_SQL:
-				var text = arguments.Length > 0 ? "SQLが不正です。\n" + arguments[0] : "SQLが不正です。";
+				var text = arguments.Length > 0 ? "SQLが不正です。" + Environment.NewLine + arguments[0] : "SQLが不正です。";
 				MessageBox.Show(this, text, this.DefaultTabName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				break;
 			case MessageBoxMessage.FAIL_TO_ACCESE_FILE:
