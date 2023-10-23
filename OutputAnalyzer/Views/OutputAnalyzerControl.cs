@@ -1,12 +1,6 @@
-﻿using furaku.CellsFileAccessorLib.Repositories;
-using furaku.Common.Services;
-using furaku.OpenPraparatHelper.Services;
-using System.Collections.Concurrent;
+﻿using furaku.OpenPraparatHelper.Services;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
