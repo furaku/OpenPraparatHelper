@@ -19,14 +19,13 @@ You can use under the MIT licence. Please see [a licence file](LICENSE) for more
 Download and unzip the ZIP file in the release page.
 
 ## Install by scoop
-You can install by scoop.
-support by nodokaha(github link is [nodokaha/myscoop](https://github.com/nodokaha/myscoop))
+Installation with the scoop package manager is supported (maintained by nodokaha separately from the author of this software at [nodokaha/myscoop](https://github.com/nodokaha/myscoop)).
+If you find a problem, please submit issue to nodokaha.
 
-This is presented by nodokaha, not OpenPraparatHelper creator.
+Running the bat file will install the software at the command prompt, including the shortcut, with the paths passed through.
 
-If you get problem, please submit issue to nodokaha.
+*Note* that this installs binaries from the release, not the source code built and installed.
 
-*warning* This is not build script.
 ```cmd
 ScoopInstall.bat
 ```
