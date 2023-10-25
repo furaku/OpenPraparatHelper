@@ -73,9 +73,6 @@ public class ExtendsManager
 /// <summary>拡張機能</summary>
 public interface IExtend
 {
-	/// <summary>希望鍵</summary>
-	string DesiredKey { get; }
-
 	/// <summary>標準タブ名</summary>
 	string DefaultTabName { get; }
 

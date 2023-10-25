@@ -10,9 +10,6 @@ namespace furaku.OutputAnalyzer;
 public partial class OutputAnalyzerControl : UserControl, IExtend
 {
 	/// <inheritdoc/>
-	public virtual string DesiredKey => "outputAnalyzer";
-
-	/// <inheritdoc/>
 	public virtual string DefaultTabName => "出力解析";
 
 	/// <summary>OpenPraparatを実行しているプロセス</summary>

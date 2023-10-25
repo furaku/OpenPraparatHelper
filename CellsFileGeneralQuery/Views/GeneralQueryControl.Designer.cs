@@ -32,7 +32,6 @@ partial class GeneralQueryControl
 		specificationFileButton = new Button();
 		openFileDialog = new OpenFileDialog();
 		startPanel = new Panel();
-		outputBox = new RichTextBox();
 		outputTab = new TabControl();
 		tabPage1 = new TabPage();
 		resultFindView = new TreeView();
@@ -41,6 +40,7 @@ partial class GeneralQueryControl
 		Number = new DataGridViewTextBoxColumn();
 		Value = new DataGridViewTextBoxColumn();
 		tabPage2 = new TabPage();
+		outputBox = new Common.Views.ConsoleControl();
 		tableLayoutPanel1 = new TableLayoutPanel();
 		queryButton = new Button();
 		findButton = new Button();
@@ -54,6 +54,7 @@ partial class GeneralQueryControl
 		scalarSQLBox = new TextBox();
 		scalarTypeBox = new ComboBox();
 		outputViewTimer = new System.Windows.Forms.Timer(components);
+		mainContainer = new SplitContainer();
 		startPanel.SuspendLayout();
 		outputTab.SuspendLayout();
 		tabPage1.SuspendLayout();
@@ -62,6 +63,10 @@ partial class GeneralQueryControl
 		tabPage2.SuspendLayout();
 		tableLayoutPanel1.SuspendLayout();
 		panel1.SuspendLayout();
+		((System.ComponentModel.ISupportInitialize)mainContainer).BeginInit();
+		mainContainer.Panel1.SuspendLayout();
+		mainContainer.Panel2.SuspendLayout();
+		mainContainer.SuspendLayout();
 		SuspendLayout();
 		// 
 		// specificationFileButton
@@ -90,28 +95,16 @@ partial class GeneralQueryControl
 		startPanel.Size = new Size(800, 426);
 		startPanel.TabIndex = 0;
 		// 
-		// outputBox
-		// 
-		outputBox.BackColor = SystemColors.Window;
-		outputBox.Dock = DockStyle.Fill;
-		outputBox.Location = new Point(3, 3);
-		outputBox.Name = "outputBox";
-		outputBox.ReadOnly = true;
-		outputBox.Size = new Size(780, 203);
-		outputBox.TabIndex = 11;
-		outputBox.Text = "";
-		outputBox.WordWrap = false;
-		// 
 		// outputTab
 		// 
-		outputTab.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 		outputTab.Controls.Add(tabPage1);
 		outputTab.Controls.Add(tabPage3);
 		outputTab.Controls.Add(tabPage2);
-		outputTab.Location = new Point(6, 186);
+		outputTab.Dock = DockStyle.Fill;
+		outputTab.Location = new Point(0, 0);
 		outputTab.Name = "outputTab";
 		outputTab.SelectedIndex = 0;
-		outputTab.Size = new Size(794, 237);
+		outputTab.Size = new Size(800, 244);
 		outputTab.TabIndex = 9;
 		// 
 		// tabPage1
@@ -120,7 +113,7 @@ partial class GeneralQueryControl
 		tabPage1.Location = new Point(4, 24);
 		tabPage1.Name = "tabPage1";
 		tabPage1.Padding = new Padding(3);
-		tabPage1.Size = new Size(786, 209);
+		tabPage1.Size = new Size(792, 216);
 		tabPage1.TabIndex = 0;
 		tabPage1.Text = "検索結果";
 		tabPage1.UseVisualStyleBackColor = true;
@@ -130,7 +123,7 @@ partial class GeneralQueryControl
 		resultFindView.Dock = DockStyle.Fill;
 		resultFindView.Location = new Point(3, 3);
 		resultFindView.Name = "resultFindView";
-		resultFindView.Size = new Size(780, 203);
+		resultFindView.Size = new Size(786, 210);
 		resultFindView.TabIndex = 9;
 		// 
 		// tabPage3
@@ -138,7 +131,7 @@ partial class GeneralQueryControl
 		tabPage3.Controls.Add(resultQueryView);
 		tabPage3.Location = new Point(4, 24);
 		tabPage3.Name = "tabPage3";
-		tabPage3.Size = new Size(786, 209);
+		tabPage3.Size = new Size(792, 216);
 		tabPage3.TabIndex = 2;
 		tabPage3.Text = "問い合わせ結果";
 		tabPage3.UseVisualStyleBackColor = true;
@@ -161,7 +154,7 @@ partial class GeneralQueryControl
 		resultQueryView.ShowCellToolTips = false;
 		resultQueryView.ShowEditingIcon = false;
 		resultQueryView.ShowRowErrors = false;
-		resultQueryView.Size = new Size(786, 209);
+		resultQueryView.Size = new Size(792, 216);
 		resultQueryView.TabIndex = 10;
 		// 
 		// Number
@@ -184,14 +177,28 @@ partial class GeneralQueryControl
 		tabPage2.Location = new Point(4, 24);
 		tabPage2.Name = "tabPage2";
 		tabPage2.Padding = new Padding(3);
-		tabPage2.Size = new Size(786, 209);
+		tabPage2.Size = new Size(792, 216);
 		tabPage2.TabIndex = 1;
 		tabPage2.Text = "ログ";
 		tabPage2.UseVisualStyleBackColor = true;
 		// 
+		// outputBox
+		// 
+		outputBox.BackColor = SystemColors.Window;
+		outputBox.BorderStyle = BorderStyle.Fixed3D;
+		outputBox.Dock = DockStyle.Fill;
+		outputBox.Font = new Font("ＭＳ ゴシック", 10F, FontStyle.Regular, GraphicsUnit.Point);
+		outputBox.Location = new Point(3, 3);
+		outputBox.Margin = new Padding(4, 2, 4, 2);
+		outputBox.MaxLines = 30000;
+		outputBox.Name = "outputBox";
+		outputBox.SelectedColor = Color.DeepSkyBlue;
+		outputBox.Size = new Size(786, 210);
+		outputBox.TabIndex = 0;
+		// 
 		// tableLayoutPanel1
 		// 
-		tableLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+		tableLayoutPanel1.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
 		tableLayoutPanel1.ColumnCount = 3;
 		tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 133F));
 		tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -205,22 +212,23 @@ partial class GeneralQueryControl
 		tableLayoutPanel1.Controls.Add(label2, 0, 1);
 		tableLayoutPanel1.Controls.Add(label3, 0, 2);
 		tableLayoutPanel1.Controls.Add(panel1, 1, 2);
-		tableLayoutPanel1.Location = new Point(3, 3);
+		tableLayoutPanel1.Dock = DockStyle.Fill;
+		tableLayoutPanel1.Location = new Point(0, 0);
 		tableLayoutPanel1.Name = "tableLayoutPanel1";
 		tableLayoutPanel1.RowCount = 3;
 		tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 27F));
-		tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 59F));
-		tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 8F));
-		tableLayoutPanel1.Size = new Size(794, 177);
+		tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 38.2550354F));
+		tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 61.7449646F));
+		tableLayoutPanel1.Size = new Size(800, 178);
 		tableLayoutPanel1.TabIndex = 0;
 		// 
 		// queryButton
 		// 
 		queryButton.Dock = DockStyle.Fill;
-		queryButton.Location = new Point(678, 89);
+		queryButton.Location = new Point(683, 89);
 		queryButton.Name = "queryButton";
 		queryButton.Size = new Size(113, 85);
-		queryButton.TabIndex = 7;
+		queryButton.TabIndex = 9;
 		queryButton.Text = "問い合わせ(&Q)";
 		queryButton.UseVisualStyleBackColor = true;
 		queryButton.Click += QueryButton_Click;
@@ -228,10 +236,10 @@ partial class GeneralQueryControl
 		// findButton
 		// 
 		findButton.Dock = DockStyle.Fill;
-		findButton.Location = new Point(678, 30);
+		findButton.Location = new Point(683, 32);
 		findButton.Name = "findButton";
-		findButton.Size = new Size(113, 53);
-		findButton.TabIndex = 4;
+		findButton.Size = new Size(113, 50);
+		findButton.TabIndex = 5;
 		findButton.Text = "検索(&F)";
 		findButton.UseVisualStyleBackColor = true;
 		findButton.Click += FindButton_Click;
@@ -239,7 +247,7 @@ partial class GeneralQueryControl
 		// label1
 		// 
 		label1.Dock = DockStyle.Fill;
-		label1.Location = new Point(3, 0);
+		label1.Location = new Point(4, 1);
 		label1.Name = "label1";
 		label1.Size = new Size(127, 27);
 		label1.TabIndex = 0;
@@ -249,15 +257,15 @@ partial class GeneralQueryControl
 		// loadIdsBox
 		// 
 		loadIdsBox.Dock = DockStyle.Fill;
-		loadIdsBox.Location = new Point(136, 3);
+		loadIdsBox.Location = new Point(138, 4);
 		loadIdsBox.Name = "loadIdsBox";
-		loadIdsBox.Size = new Size(536, 23);
+		loadIdsBox.Size = new Size(538, 23);
 		loadIdsBox.TabIndex = 1;
 		// 
 		// loadButton
 		// 
 		loadButton.Dock = DockStyle.Fill;
-		loadButton.Location = new Point(678, 3);
+		loadButton.Location = new Point(683, 4);
 		loadButton.Name = "loadButton";
 		loadButton.Size = new Size(113, 21);
 		loadButton.TabIndex = 2;
@@ -268,21 +276,21 @@ partial class GeneralQueryControl
 		// findSQLBox
 		// 
 		findSQLBox.Dock = DockStyle.Fill;
-		findSQLBox.Location = new Point(136, 30);
+		findSQLBox.Location = new Point(138, 32);
 		findSQLBox.Multiline = true;
 		findSQLBox.Name = "findSQLBox";
 		findSQLBox.ScrollBars = ScrollBars.Both;
-		findSQLBox.Size = new Size(536, 53);
-		findSQLBox.TabIndex = 3;
+		findSQLBox.Size = new Size(538, 50);
+		findSQLBox.TabIndex = 4;
 		findSQLBox.WordWrap = false;
 		// 
 		// label2
 		// 
 		label2.AutoSize = true;
 		label2.Dock = DockStyle.Fill;
-		label2.Location = new Point(3, 27);
+		label2.Location = new Point(4, 29);
 		label2.Name = "label2";
-		label2.Size = new Size(127, 59);
+		label2.Size = new Size(127, 56);
 		label2.TabIndex = 3;
 		label2.Text = "検索SQL(&N)";
 		label2.TextAlign = ContentAlignment.MiddleLeft;
@@ -291,7 +299,7 @@ partial class GeneralQueryControl
 		// 
 		label3.AutoSize = true;
 		label3.Dock = DockStyle.Fill;
-		label3.Location = new Point(3, 86);
+		label3.Location = new Point(4, 86);
 		label3.Name = "label3";
 		label3.Size = new Size(127, 91);
 		label3.TabIndex = 6;
@@ -303,21 +311,21 @@ partial class GeneralQueryControl
 		panel1.Controls.Add(scalarSQLBox);
 		panel1.Controls.Add(scalarTypeBox);
 		panel1.Dock = DockStyle.Fill;
-		panel1.Location = new Point(133, 86);
+		panel1.Location = new Point(135, 86);
 		panel1.Margin = new Padding(0);
 		panel1.Name = "panel1";
-		panel1.Size = new Size(542, 91);
+		panel1.Size = new Size(544, 91);
 		panel1.TabIndex = 9;
 		// 
 		// scalarSQLBox
 		// 
-		scalarSQLBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+		scalarSQLBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 		scalarSQLBox.Location = new Point(3, 32);
 		scalarSQLBox.Multiline = true;
 		scalarSQLBox.Name = "scalarSQLBox";
 		scalarSQLBox.ScrollBars = ScrollBars.Both;
-		scalarSQLBox.Size = new Size(536, 56);
-		scalarSQLBox.TabIndex = 6;
+		scalarSQLBox.Size = new Size(538, 55);
+		scalarSQLBox.TabIndex = 8;
 		scalarSQLBox.WordWrap = false;
 		// 
 		// scalarTypeBox
@@ -327,20 +335,38 @@ partial class GeneralQueryControl
 		scalarTypeBox.Location = new Point(3, 3);
 		scalarTypeBox.Name = "scalarTypeBox";
 		scalarTypeBox.Size = new Size(94, 23);
-		scalarTypeBox.TabIndex = 5;
+		scalarTypeBox.TabIndex = 7;
 		// 
 		// outputViewTimer
 		// 
 		outputViewTimer.Interval = 500;
+		// 
+		// mainContainer
+		// 
+		mainContainer.Dock = DockStyle.Fill;
+		mainContainer.Location = new Point(0, 0);
+		mainContainer.Name = "mainContainer";
+		mainContainer.Orientation = Orientation.Horizontal;
+		// 
+		// mainContainer.Panel1
+		// 
+		mainContainer.Panel1.Controls.Add(tableLayoutPanel1);
+		// 
+		// mainContainer.Panel2
+		// 
+		mainContainer.Panel2.Controls.Add(outputTab);
+		mainContainer.Size = new Size(800, 426);
+		mainContainer.SplitterDistance = 178;
+		mainContainer.TabIndex = 10;
+		mainContainer.Visible = false;
 		// 
 		// GeneralQueryControl
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		BackColor = SystemColors.Control;
+		Controls.Add(mainContainer);
 		Controls.Add(startPanel);
-		Controls.Add(outputTab);
-		Controls.Add(tableLayoutPanel1);
 		Name = "GeneralQueryControl";
 		Size = new Size(800, 426);
 		startPanel.ResumeLayout(false);
@@ -354,6 +380,10 @@ partial class GeneralQueryControl
 		tableLayoutPanel1.PerformLayout();
 		panel1.ResumeLayout(false);
 		panel1.PerformLayout();
+		mainContainer.Panel1.ResumeLayout(false);
+		mainContainer.Panel2.ResumeLayout(false);
+		((System.ComponentModel.ISupportInitialize)mainContainer).EndInit();
+		mainContainer.ResumeLayout(false);
 		ResumeLayout(false);
 	}
 
@@ -365,7 +395,6 @@ partial class GeneralQueryControl
 	private TabControl outputTab;
 	private TabPage tabPage1;
 	private TabPage tabPage2;
-	private RichTextBox outputBox;
 	private TableLayoutPanel tableLayoutPanel1;
 	private Label label1;
 	private TextBox loadIdsBox;
@@ -384,4 +413,6 @@ partial class GeneralQueryControl
 	private DataGridView resultQueryView;
 	private DataGridViewTextBoxColumn Number;
 	private DataGridViewTextBoxColumn Value;
+	private Common.Views.ConsoleControl outputBox;
+	private SplitContainer mainContainer;
 }

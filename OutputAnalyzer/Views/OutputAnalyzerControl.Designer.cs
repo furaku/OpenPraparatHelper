@@ -58,7 +58,7 @@ partial class OutputAnalyzerControl
 		executeButton.Location = new Point(722, 90);
 		executeButton.Name = "executeButton";
 		executeButton.Size = new Size(75, 23);
-		executeButton.TabIndex = 6;
+		executeButton.TabIndex = 8;
 		executeButton.Text = "実行(&G)";
 		executeButton.UseVisualStyleBackColor = true;
 		executeButton.Click += ExecuteButton_Click;
@@ -110,11 +110,14 @@ partial class OutputAnalyzerControl
 		outputBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 		outputBox.BackColor = SystemColors.Window;
 		outputBox.BorderStyle = BorderStyle.Fixed3D;
+		outputBox.Font = new Font("ＭＳ ゴシック", 10F, FontStyle.Regular, GraphicsUnit.Point);
 		outputBox.Location = new Point(3, 119);
+		outputBox.Margin = new Padding(4, 2, 4, 2);
 		outputBox.MaxLines = 0;
 		outputBox.Name = "outputBox";
+		outputBox.SelectedColor = Color.Empty;
 		outputBox.Size = new Size(794, 304);
-		outputBox.TabIndex = 7;
+		outputBox.TabIndex = 9;
 		// 
 		// rotaionBox
 		// 
@@ -123,7 +126,7 @@ partial class OutputAnalyzerControl
 		rotaionBox.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
 		rotaionBox.Name = "rotaionBox";
 		rotaionBox.Size = new Size(120, 23);
-		rotaionBox.TabIndex = 8;
+		rotaionBox.TabIndex = 7;
 		rotaionBox.TextAlign = HorizontalAlignment.Right;
 		rotaionBox.Value = new decimal(new int[] { 10000, 0, 0, 0 });
 		// 
@@ -133,7 +136,7 @@ partial class OutputAnalyzerControl
 		label4.Location = new Point(3, 94);
 		label4.Name = "label4";
 		label4.Size = new Size(105, 15);
-		label4.TabIndex = 9;
+		label4.TabIndex = 6;
 		label4.Text = "ローテーション行数(&L)";
 		// 
 		// OutputAnalyzerControl

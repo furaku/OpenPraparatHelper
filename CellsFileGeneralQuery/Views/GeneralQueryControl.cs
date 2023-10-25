@@ -22,9 +22,6 @@ namespace furaku.CellsFileGeneralQuery;
 public partial class GeneralQueryControl : UserControl, IExtend
 {
 	/// <inheritdoc/>
-	public virtual string DesiredKey => "generalQuery";
-
-	/// <inheritdoc/>
 	public virtual string DefaultTabName => "汎用問い合わせ";
 
 	/// <summary>細胞ファイルアクセサ</summary>
@@ -73,61 +70,55 @@ public partial class GeneralQueryControl : UserControl, IExtend
 		this.Task = null;
 		this.outputViewTimer.Tick += (s, e) =>
 		{
-			var sb = new StringBuilder();
 			while (this.ProcessMessages.TryDequeue(out var message))
 			{
 				if (message is StartFindParticleFromFile)
 				{
-					sb.AppendLine();
-					sb.AppendLine("ファイルからの読み込みを開始");
+					this.outputBox.AppendLine(("", Color.Empty));
+					this.outputBox.AppendLine(("ファイルからの読み込みを開始", Color.Blue));
 				}
 				else if (message is EndFindParticleFromFile)
 				{
-					sb.AppendLine("ファイルからの読み込みを完了");
+					this.outputBox.AppendLine(("ファイルからの読み込みを完了", Color.Blue));
 				}
 				else if (message is ReadParticleFromFile readParticle)
 				{
-					sb.AppendLine(string.Format("粒子を読み込み ID：{0}", readParticle.Value.ID));
+					this.outputBox.AppendLine((string.Format("粒子を読み込み ID：{0}", readParticle.Value.ID), Color.Empty));
 				}
 				else if (message is StartFindCellToSqlite)
 				{
-					sb.AppendLine();
-					sb.AppendLine("細胞の検索を開始");
+					this.outputBox.AppendLine(("", Color.Empty));
+					this.outputBox.AppendLine(("細胞の検索を開始", Color.Blue));
 				}
 				else if (message is EndFindCellToSqlite)
 				{
-					sb.AppendLine("細胞の検索を完了");
+					this.outputBox.AppendLine(("細胞の検索を完了", Color.Blue));
 				}
 				else if (message is FindCellToSqlite findCell)
 				{
-					sb.AppendLine(string.Format("細胞を発見 ID：{0}", findCell.Value.ID));
+					this.outputBox.AppendLine((string.Format("細胞を発見 ID：{0}", findCell.Value.ID), Color.Empty));
 				}
 				else if (message is StartQueryCellToSqlite)
 				{
-					sb.AppendLine();
-					sb.AppendLine("細胞への問い合わせを開始");
+					this.outputBox.AppendLine(("", Color.Empty));
+					this.outputBox.AppendLine(("細胞への問い合わせを開始", Color.Blue));
 				}
 				else if (message is EndQueryCellToSqlite)
 				{
-					sb.AppendLine("細胞への問い合わせを完了");
+					this.outputBox.AppendLine(("細胞への問い合わせを完了", Color.Blue));
 				}
 				else if (message is QueryCellToSqlite queryResult)
 				{
-					sb.AppendLine(string.Format("問い合わせ結果 {0}：{1}", queryResult.Value.Number, queryResult.Value.Result));
+					this.outputBox.AppendLine((string.Format("問い合わせ結果 {0}：{1}", queryResult.Value.Number, queryResult.Value.Result), Color.Empty));
 				}
 				else if (message is StartCancelation)
 				{
-					sb.AppendLine("キャンセルを開始");
+					this.outputBox.AppendLine(("キャンセルを開始", Color.Blue));
 				}
 				else if (message is EndCnacelation)
 				{
-					sb.AppendLine("キャンセルを完了");
+					this.outputBox.AppendLine(("キャンセルを完了", Color.Blue));
 				}
-			}
-			if (sb.Length > 0)
-			{
-				this.outputBox.AppendText(sb.ToString());
-				this.outputBox.ScrollToCaret();
 			}
 		};
 		this.outputViewTimer.Start();
@@ -153,6 +144,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			this.CellsFileAccessor?.Dispose();
 			this.CellsFileAccessor = new(this.openFileDialog.FileNames[0]);
 			this.State = GenralQueryControlState.NONE;
+			this.mainContainer.Visible = true;
 			this.startPanel.Visible = false;
 		}
 	}

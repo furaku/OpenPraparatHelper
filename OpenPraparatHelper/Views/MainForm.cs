@@ -25,14 +25,7 @@ public partial class MainForm : Form
 		ExtendsManager = new();
 		foreach (var extends in ExtendsManager.Load())
 		{
-			var pages = this.functionsTab.TabPages;
-			var i = 1;
-			string key = extends.DesiredKey;
-			while (pages.ContainsKey(key))
-			{
-				key = extends.DesiredKey + i;
-				i++;
-			}
+			string key = extends.GetType().FullName!;
 			this.functionsTab.TabPages.Add(key, extends.DefaultTabName);
 			this.functionsTab.TabPages[key].Controls.Add((Control)extends);
 		}
