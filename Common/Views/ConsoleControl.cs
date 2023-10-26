@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Security.Policy;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace furaku.Common.Views;
 
@@ -64,7 +58,7 @@ public partial class ConsoleControl : UserControl
 		{
 			if ((this.Lines.Count > 0) && (this.Lines.Count + lines.Length > this.MaxLines))
 			{
-				this.Lines.RemoveRange(0, Math.Max(this.Lines.Count + lines.Length - this.MaxLines, this.Lines.Count));
+				this.Lines.RemoveRange(0, Math.Min(this.Lines.Count + lines.Length - this.MaxLines, this.Lines.Count));
 			}
 			this.Lines.AddRange(lines.Take(this.MaxLines));
 			this.CalculationScroll();
@@ -98,12 +92,12 @@ public partial class ConsoleControl : UserControl
 				{
 					this.TextBrush.Color = color;
 					e.Graphics.DrawString(text[..start], this.Font, this.TextBrush, x, y, this.StringFormat);
-					x += this.MeasureString(e.Graphics, text[..start]).Sum();
+					x += this.MeasureCharRanges(e.Graphics, text[..start]).Sum();
 				}
 				this.TextBrush.Color = Color.FromArgb(0xFF - color.R, 0xFF - color.G, 0xFF - color.B);
-				e.Graphics.FillRectangle(new SolidBrush(this.SelectedColor), x + 2, y, this.MeasureString(e.Graphics, text[start..end]).Sum(), this.FontHeight);
+				e.Graphics.FillRectangle(new SolidBrush(this.SelectedColor), x + 2, y, this.MeasureCharRanges(e.Graphics, text[start..end]).Sum(), this.FontHeight);
 				e.Graphics.DrawString(text[start..end], this.Font, this.TextBrush, x, y, this.StringFormat);
-				x += this.MeasureString(e.Graphics, text[start..end]).Sum();
+				x += this.MeasureCharRanges(e.Graphics, text[start..end]).Sum();
 				if (end < text.Length)
 				{
 					this.TextBrush.Color = color;
@@ -268,7 +262,7 @@ public partial class ConsoleControl : UserControl
 		}
 
 		using var g = this.CreateGraphics();
-		var width = this.Lines.Count > 0 ? (int)this.Lines.Max(elem => this.MeasureString(g, elem.Text).Sum()) : 0;
+		var width = this.Lines.Count > 0 ? (int)this.Lines.Max(elem => g.MeasureString(elem.Text, this.Font, new PointF(0,0), this.StringFormat).Width) : 0;
 		if (width <= this.hScrollBar.LargeChange)
 		{
 			this.hScrollBar.Enabled = false;
@@ -291,7 +285,7 @@ public partial class ConsoleControl : UserControl
 
 		var totalWidth = 0f;
 		var column = 0;
-		foreach (var witdh in this.MeasureString(g, this.Lines[row].Text))
+		foreach (var witdh in this.MeasureCharRanges(g, this.Lines[row].Text))
 		{
 			totalWidth += witdh;
 			if (totalWidth > xPoint)
@@ -308,7 +302,7 @@ public partial class ConsoleControl : UserControl
 	/// <param name="g">グラフィック</param>
 	/// <param name="text">テキスト</param>
 	/// <returns>幅</returns>
-	protected virtual IEnumerable<float> MeasureString(Graphics g, string text)
+	protected virtual IEnumerable<float> MeasureCharRanges(Graphics g, string text)
 	{
 		var size = g.MeasureString(text, this.Font, new PointF(0, 0), this.StringFormat);
 		for (var i = 0; i <= ((text.Length - 1) / 32); i++)

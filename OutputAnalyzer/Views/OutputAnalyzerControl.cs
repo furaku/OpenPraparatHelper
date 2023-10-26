@@ -12,14 +12,17 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	/// <inheritdoc/>
 	public virtual string DefaultTabName => "出力解析";
 
-	/// <summary>OpenPraparatを実行しているプロセス</summary>
-	protected virtual Process? Process { get; set; }
+	/// <summary>実行中の出力中か</summary>
+	public virtual bool IsProcessing { get; protected set; }
+
+	/// <summary>出力新規行操作ロック</summary>
+	protected ReaderWriterLockSlim NewLinesLock { get; }
 
 	/// <summary>出力新規追加行</summary>
 	protected virtual List<(string, Color)> OutputNewLines { get; }
 
-	/// <summary>実行中の出力中か</summary>
-	public virtual bool IsProcessing { get; protected set; }
+	/// <summary>OpenPraparatを実行しているプロセス</summary>
+	protected virtual Process? Process { get; set; }
 
 	/// <summary>コンストラクタ</summary>
 	public OutputAnalyzerControl()
@@ -29,17 +32,22 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 		this.outputBox.MaxLines = 30000;
 		this.outputBox.SelectedColor = Color.DeepSkyBlue;
 		this.Dock = DockStyle.Fill;
-		this.OutputNewLines = new();
+
 		this.IsProcessing = false;
+		this.NewLinesLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+		this.OutputNewLines = new();
 		this.timer.Tick += (s, e) =>
 		{
 			(string, Color)[] lines;
-			lock (this.OutputNewLines)
+			if (this.NewLinesLock.TryEnterUpgradeableReadLock(0))
 			{
 				lines = this.OutputNewLines.ToArray();
+				this.NewLinesLock.EnterWriteLock();
 				this.OutputNewLines.Clear();
+				this.NewLinesLock.ExitWriteLock();
+				this.NewLinesLock.ExitUpgradeableReadLock();
+				this.outputBox.AppendLine(lines);
 			}
-			this.outputBox.AppendLine(lines);
 		};
 		this.timer.Start();
 	}
@@ -136,10 +144,9 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 								var line = reader.ReadLine();
 								while (line is not null)
 								{
-									lock (this.OutputNewLines)
-									{
-										this.OutputNewLines.Add((line, Color.Empty));
-									}
+									this.NewLinesLock.EnterWriteLock();
+									this.OutputNewLines.Add((line, Color.Empty));
+									this.NewLinesLock.ExitWriteLock();
 									logWriter?.WriteLineAsync(line);
 									this.WriteLineToCsv(csvWriter, line);
 									line = reader.ReadLine();
@@ -198,10 +205,9 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 							var line = reader.ReadLine();
 							while (line is not null)
 							{
-								lock (this.OutputNewLines)
-								{
-									this.OutputNewLines.Add((line, Color.Red));
-								}
+								this.NewLinesLock.EnterWriteLock();
+								this.OutputNewLines.Add((line, Color.Red));
+								this.NewLinesLock.ExitWriteLock();
 								line = reader.ReadLine();
 							}
 						}
@@ -232,6 +238,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 		this.openpraparatPathBox.Enabled = !isExecuting;
 		this.logfilePathBox.Enabled = !isExecuting;
 		this.csvfilePathBox.Enabled = !isExecuting;
+		this.rotaionBox.Enabled = !isExecuting;
 		this.executeButton.Text = isExecuting ? "停止(&G)" : "実行(&G)";
 	}
 
@@ -388,6 +395,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	public virtual void Closed()
 	{
 		this.Process?.Close();
+		this.NewLinesLock.Dispose();
 	}
 }
 
