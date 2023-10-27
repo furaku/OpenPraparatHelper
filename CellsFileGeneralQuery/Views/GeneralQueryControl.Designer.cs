@@ -190,7 +190,7 @@ partial class GeneralQueryControl
 		outputBox.Font = new Font("ＭＳ ゴシック", 10F, FontStyle.Regular, GraphicsUnit.Point);
 		outputBox.Location = new Point(3, 3);
 		outputBox.Margin = new Padding(4, 2, 4, 2);
-		outputBox.MaxLines = 30000;
+		outputBox.MaxLines = 1000000;
 		outputBox.Name = "outputBox";
 		outputBox.SelectedColor = Color.DeepSkyBlue;
 		outputBox.Size = new Size(786, 210);
@@ -198,7 +198,6 @@ partial class GeneralQueryControl
 		// 
 		// tableLayoutPanel1
 		// 
-		tableLayoutPanel1.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
 		tableLayoutPanel1.ColumnCount = 3;
 		tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 133F));
 		tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -225,9 +224,9 @@ partial class GeneralQueryControl
 		// queryButton
 		// 
 		queryButton.Dock = DockStyle.Fill;
-		queryButton.Location = new Point(683, 89);
+		queryButton.Location = new Point(684, 87);
 		queryButton.Name = "queryButton";
-		queryButton.Size = new Size(113, 85);
+		queryButton.Size = new Size(113, 88);
 		queryButton.TabIndex = 9;
 		queryButton.Text = "問い合わせ(&Q)";
 		queryButton.UseVisualStyleBackColor = true;
@@ -236,9 +235,9 @@ partial class GeneralQueryControl
 		// findButton
 		// 
 		findButton.Dock = DockStyle.Fill;
-		findButton.Location = new Point(683, 32);
+		findButton.Location = new Point(684, 30);
 		findButton.Name = "findButton";
-		findButton.Size = new Size(113, 50);
+		findButton.Size = new Size(113, 51);
 		findButton.TabIndex = 5;
 		findButton.Text = "検索(&F)";
 		findButton.UseVisualStyleBackColor = true;
@@ -247,7 +246,7 @@ partial class GeneralQueryControl
 		// label1
 		// 
 		label1.Dock = DockStyle.Fill;
-		label1.Location = new Point(4, 1);
+		label1.Location = new Point(3, 0);
 		label1.Name = "label1";
 		label1.Size = new Size(127, 27);
 		label1.TabIndex = 0;
@@ -257,15 +256,15 @@ partial class GeneralQueryControl
 		// loadIdsBox
 		// 
 		loadIdsBox.Dock = DockStyle.Fill;
-		loadIdsBox.Location = new Point(138, 4);
+		loadIdsBox.Location = new Point(136, 3);
 		loadIdsBox.Name = "loadIdsBox";
-		loadIdsBox.Size = new Size(538, 23);
+		loadIdsBox.Size = new Size(542, 23);
 		loadIdsBox.TabIndex = 1;
 		// 
 		// loadButton
 		// 
 		loadButton.Dock = DockStyle.Fill;
-		loadButton.Location = new Point(683, 4);
+		loadButton.Location = new Point(684, 3);
 		loadButton.Name = "loadButton";
 		loadButton.Size = new Size(113, 21);
 		loadButton.TabIndex = 2;
@@ -276,11 +275,11 @@ partial class GeneralQueryControl
 		// findSQLBox
 		// 
 		findSQLBox.Dock = DockStyle.Fill;
-		findSQLBox.Location = new Point(138, 32);
+		findSQLBox.Location = new Point(136, 30);
 		findSQLBox.Multiline = true;
 		findSQLBox.Name = "findSQLBox";
 		findSQLBox.ScrollBars = ScrollBars.Both;
-		findSQLBox.Size = new Size(538, 50);
+		findSQLBox.Size = new Size(542, 51);
 		findSQLBox.TabIndex = 4;
 		findSQLBox.WordWrap = false;
 		// 
@@ -288,9 +287,9 @@ partial class GeneralQueryControl
 		// 
 		label2.AutoSize = true;
 		label2.Dock = DockStyle.Fill;
-		label2.Location = new Point(4, 29);
+		label2.Location = new Point(3, 27);
 		label2.Name = "label2";
-		label2.Size = new Size(127, 56);
+		label2.Size = new Size(127, 57);
 		label2.TabIndex = 3;
 		label2.Text = "検索SQL(&N)";
 		label2.TextAlign = ContentAlignment.MiddleLeft;
@@ -299,9 +298,9 @@ partial class GeneralQueryControl
 		// 
 		label3.AutoSize = true;
 		label3.Dock = DockStyle.Fill;
-		label3.Location = new Point(4, 86);
+		label3.Location = new Point(3, 84);
 		label3.Name = "label3";
-		label3.Size = new Size(127, 91);
+		label3.Size = new Size(127, 94);
 		label3.TabIndex = 6;
 		label3.Text = "スカラ問い合わせSQL(&S)";
 		label3.TextAlign = ContentAlignment.MiddleLeft;
@@ -311,10 +310,10 @@ partial class GeneralQueryControl
 		panel1.Controls.Add(scalarSQLBox);
 		panel1.Controls.Add(scalarTypeBox);
 		panel1.Dock = DockStyle.Fill;
-		panel1.Location = new Point(135, 86);
+		panel1.Location = new Point(133, 84);
 		panel1.Margin = new Padding(0);
 		panel1.Name = "panel1";
-		panel1.Size = new Size(544, 91);
+		panel1.Size = new Size(548, 94);
 		panel1.TabIndex = 9;
 		// 
 		// scalarSQLBox
@@ -324,7 +323,7 @@ partial class GeneralQueryControl
 		scalarSQLBox.Multiline = true;
 		scalarSQLBox.Name = "scalarSQLBox";
 		scalarSQLBox.ScrollBars = ScrollBars.Both;
-		scalarSQLBox.Size = new Size(538, 55);
+		scalarSQLBox.Size = new Size(542, 58);
 		scalarSQLBox.TabIndex = 8;
 		scalarSQLBox.WordWrap = false;
 		// 
@@ -336,10 +335,6 @@ partial class GeneralQueryControl
 		scalarTypeBox.Name = "scalarTypeBox";
 		scalarTypeBox.Size = new Size(94, 23);
 		scalarTypeBox.TabIndex = 7;
-		// 
-		// outputViewTimer
-		// 
-		outputViewTimer.Interval = 500;
 		// 
 		// mainContainer
 		// 

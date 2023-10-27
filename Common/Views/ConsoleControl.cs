@@ -52,15 +52,18 @@ public partial class ConsoleControl : UserControl
 
 	/// <summary>行を追加</summary>
 	/// <param name="lines">行</param>
-	public virtual void AppendLine(params (string, Color)[] lines)
+	public async virtual Task AppendLine(params (string, Color)[] lines)
 	{
 		if (lines.Length > 0)
 		{
-			if ((this.Lines.Count > 0) && (this.Lines.Count + lines.Length > this.MaxLines))
+			await Task.Run(() =>
 			{
-				this.Lines.RemoveRange(0, Math.Min(this.Lines.Count + lines.Length - this.MaxLines, this.Lines.Count));
-			}
-			this.Lines.AddRange(lines.Take(this.MaxLines));
+				if ((this.Lines.Count > 0) && (this.Lines.Count + lines.Length > this.MaxLines))
+				{
+					this.Lines.RemoveRange(0, Math.Min(this.Lines.Count + lines.Length - this.MaxLines, this.Lines.Count));
+				}
+				this.Lines.AddRange(lines.Take(this.MaxLines));
+			});
 			this.CalculationScroll();
 			this.vScrollBar.Value = Math.Max(this.vScrollBar.Maximum - this.vScrollBar.LargeChange, 0);
 			this.Invalidate();

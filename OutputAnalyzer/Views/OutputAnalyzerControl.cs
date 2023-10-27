@@ -36,7 +36,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 		this.IsProcessing = false;
 		this.NewLinesLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
 		this.OutputNewLines = new();
-		this.timer.Tick += (s, e) =>
+		this.timer.Tick += async (s, e) =>
 		{
 			(string, Color)[] lines;
 			if (this.NewLinesLock.TryEnterUpgradeableReadLock(0))
@@ -46,7 +46,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 				this.OutputNewLines.Clear();
 				this.NewLinesLock.ExitWriteLock();
 				this.NewLinesLock.ExitUpgradeableReadLock();
-				this.outputBox.AppendLine(lines);
+				await this.outputBox.AppendLine(lines);
 			}
 		};
 		this.timer.Start();

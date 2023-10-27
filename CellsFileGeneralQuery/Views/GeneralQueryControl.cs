@@ -70,56 +70,58 @@ public partial class GeneralQueryControl : UserControl, IExtend
 		this.Task = null;
 		this.outputViewTimer.Tick += (s, e) =>
 		{
+			var lines = new List<(string, Color)>();
 			while (this.ProcessMessages.TryDequeue(out var message))
 			{
 				if (message is StartFindParticleFromFile)
 				{
-					this.outputBox.AppendLine(("", Color.Empty));
-					this.outputBox.AppendLine(("ファイルからの読み込みを開始", Color.Blue));
+					lines.Add(("", Color.Empty));
+					lines.Add(("ファイルからの読み込みを開始", Color.Blue));
 				}
 				else if (message is EndFindParticleFromFile)
 				{
-					this.outputBox.AppendLine(("ファイルからの読み込みを完了", Color.Blue));
+					lines.Add(("ファイルからの読み込みを完了", Color.Blue));
 				}
 				else if (message is ReadParticleFromFile readParticle)
 				{
-					this.outputBox.AppendLine((string.Format("粒子を読み込み ID：{0}", readParticle.Value.ID), Color.Empty));
+					lines.Add((string.Format("粒子を読み込み ID：{0}", readParticle.Value.ID), Color.Empty));
 				}
 				else if (message is StartFindCellToSqlite)
 				{
-					this.outputBox.AppendLine(("", Color.Empty));
-					this.outputBox.AppendLine(("細胞の検索を開始", Color.Blue));
+					lines.Add(("", Color.Empty));
+					lines.Add(("細胞の検索を開始", Color.Blue));
 				}
 				else if (message is EndFindCellToSqlite)
 				{
-					this.outputBox.AppendLine(("細胞の検索を完了", Color.Blue));
+					lines.Add(("細胞の検索を完了", Color.Blue));
 				}
 				else if (message is FindCellToSqlite findCell)
 				{
-					this.outputBox.AppendLine((string.Format("細胞を発見 ID：{0}", findCell.Value.ID), Color.Empty));
+					lines.Add((string.Format("細胞を発見 ID：{0}", findCell.Value.ID), Color.Empty));
 				}
 				else if (message is StartQueryCellToSqlite)
 				{
-					this.outputBox.AppendLine(("", Color.Empty));
-					this.outputBox.AppendLine(("細胞への問い合わせを開始", Color.Blue));
+					lines.Add(("", Color.Empty));
+					lines.Add(("細胞への問い合わせを開始", Color.Blue));
 				}
 				else if (message is EndQueryCellToSqlite)
 				{
-					this.outputBox.AppendLine(("細胞への問い合わせを完了", Color.Blue));
+					lines.Add(("細胞への問い合わせを完了", Color.Blue));
 				}
 				else if (message is QueryCellToSqlite queryResult)
 				{
-					this.outputBox.AppendLine((string.Format("問い合わせ結果 {0}：{1}", queryResult.Value.Number, queryResult.Value.Result), Color.Empty));
+					lines.Add((string.Format("問い合わせ結果 {0}：{1}", queryResult.Value.Number, queryResult.Value.Result), Color.Empty));
 				}
 				else if (message is StartCancelation)
 				{
-					this.outputBox.AppendLine(("キャンセルを開始", Color.Blue));
+					lines.Add(("キャンセルを開始", Color.Blue));
 				}
 				else if (message is EndCnacelation)
 				{
-					this.outputBox.AppendLine(("キャンセルを完了", Color.Blue));
+					lines.Add(("キャンセルを完了", Color.Blue));
 				}
 			}
+			this.Invoke(async () => await this.outputBox.AppendLine(lines.ToArray()));
 		};
 		this.outputViewTimer.Start();
 	}
@@ -187,8 +189,12 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			}
 			catch (OperationCanceledException)
 			{
-				this.ProcessMessages.Enqueue(new EndCnacelation(this));
-				this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
+				try
+				{
+					this.ProcessMessages.Enqueue(new EndCnacelation(this));
+					this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
+				}
+				catch (ObjectDisposedException) { }
 			}
 			catch (FailToFileAccessException)
 			{
@@ -242,8 +248,12 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			}
 			catch (OperationCanceledException)
 			{
-				this.ProcessMessages.Enqueue(new EndCnacelation(this));
-				this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
+				try
+				{
+					this.ProcessMessages.Enqueue(new EndCnacelation(this));
+					this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
+				}
+				catch (ObjectDisposedException) { }
 			}
 			catch (ArgumentException)
 			{
@@ -429,8 +439,12 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			}
 			catch (OperationCanceledException)
 			{
-				this.ProcessMessages.Enqueue(new EndCnacelation(this));
-				this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
+				try
+				{
+					this.ProcessMessages.Enqueue(new EndCnacelation(this));
+					this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
+				}
+				catch (ObjectDisposedException) { }
 			}
 			catch (ArgumentException)
 			{
