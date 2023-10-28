@@ -59,15 +59,18 @@ public partial class GeneralQueryControl : UserControl, IExtend
 	/// <summary>コンストラクタ</summary>
 	public GeneralQueryControl()
 	{
-		this.InitializeComponent();
-		this.scalarTypeBox.Items.AddRange(SqlType.Elemnts.ToArray());
-		this.scalarTypeBox.SelectedIndex = 0;
-		this.State = GenralQueryControlState.NO_FILE;
-		this.Dock = DockStyle.Fill;
-		this.openFileDialog.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
 		this.CellsFileAccessor = null;
 		this.ProcessMessages = new();
 		this.Task = null;
+
+		this.InitializeComponent();
+
+		this.Dock = DockStyle.Fill;
+		this.scalarTypeBox.Items.AddRange(SqlType.Elemnts.ToArray());
+		this.scalarTypeBox.SelectedIndex = 0;
+		this.State = GenralQueryControlState.NO_FILE;
+
+		this.openFileDialog.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
 		this.outputViewTimer.Tick += (s, e) =>
 		{
 			var lines = new List<(string, Color)>();
@@ -121,18 +124,17 @@ public partial class GeneralQueryControl : UserControl, IExtend
 					lines.Add(("キャンセルを完了", Color.Blue));
 				}
 			}
-			this.Invoke(async () => await this.outputBox.AppendLine(lines.ToArray()));
+			this.BeginInvoke(async () => await this.outputBox.AppendLine(lines.ToArray()));
 		};
 		this.outputViewTimer.Start();
-	}
 
-	/// <inheritdoc/>
-	public virtual void Closed()
-	{
-		this.Task?.Dispose();
-		this.Task = null;
-		this.CellsFileAccessor?.Dispose();
-		this.CellsFileAccessor = null;
+		this.Disposed += (s, e) =>
+		{
+			this.Task?.Dispose();
+			this.Task = null;
+			this.CellsFileAccessor?.Dispose();
+			this.CellsFileAccessor = null;
+		};
 	}
 
 	/// <summary>ファイル指定ボタンクリックイベントハンドラ</summary>

@@ -21,6 +21,9 @@ public partial class ConsoleControl : UserControl
 	/// <summary>テキスト描画用ブラシ</summary>
 	protected virtual SolidBrush TextBrush { get; }
 
+	/// <summary></summary>
+	protected virtual ReaderWriterLockSlim LinesLock { get; }
+
 	/// <summary>行</summary>
 	protected virtual List<(string Text, Color Color)> Lines { get; }
 
@@ -39,15 +42,18 @@ public partial class ConsoleControl : UserControl
 	/// <summary>コンストラクタ</summary>
 	public ConsoleControl()
 	{
-		InitializeComponent();
 		this.Pressed = PressedKey.NONE;
 		this.TextBrush = new(this.ForeColor);
+		this.LinesLock = new();
 		this.Lines = new();
-		this.hScrollBar.Enabled = false;
 		this.StringFormat = new(StringFormatFlags.NoWrap | StringFormatFlags.MeasureTrailingSpaces)
 		{
 			Alignment = StringAlignment.Near,
 		};
+
+		InitializeComponent();
+
+		this.Disposed += (s, e) => this.LinesLock.Dispose();
 	}
 
 	/// <summary>行を追加</summary>
@@ -58,13 +64,35 @@ public partial class ConsoleControl : UserControl
 		{
 			await Task.Run(() =>
 			{
-				if ((this.Lines.Count > 0) && (this.Lines.Count + lines.Length > this.MaxLines))
+				this.LinesLock.EnterUpgradeableReadLock();
+				try
 				{
-					this.Lines.RemoveRange(0, Math.Min(this.Lines.Count + lines.Length - this.MaxLines, this.Lines.Count));
+					if ((this.Lines.Count > 0) && (this.Lines.Count + lines.Length > this.MaxLines))
+					{
+						this.LinesLock.EnterWriteLock();
+						this.Lines.RemoveRange(0, Math.Min(this.Lines.Count + lines.Length - this.MaxLines, this.Lines.Count));
+					}
+					else
+					{
+						this.LinesLock.EnterWriteLock();
+					}
+					this.Lines.AddRange(lines.Take(this.MaxLines));
+					this.LinesLock.ExitWriteLock();
 				}
-				this.Lines.AddRange(lines.Take(this.MaxLines));
+				finally
+				{
+					this.LinesLock.ExitUpgradeableReadLock();
+				}
 			});
-			this.CalculationScroll();
+			this.LinesLock.EnterReadLock();
+			try
+			{
+				this.CalculationScroll();
+			}
+			finally
+			{
+				this.LinesLock.ExitReadLock();
+			}
 			this.vScrollBar.Value = Math.Max(this.vScrollBar.Maximum - this.vScrollBar.LargeChange, 0);
 			this.Invalidate();
 		}
@@ -76,11 +104,21 @@ public partial class ConsoleControl : UserControl
 		base.OnPaint(e);
 
 		var startRow = this.vScrollBar.Value / this.FontHeight;
-		var endRow = Math.Min((this.vScrollBar.Value + this.vScrollBar.LargeChange) / this.FontHeight + 1, this.Lines.Count - 1);
-		var index = this.Lines.Take(startRow).Sum(elem => elem.Text.Length);
+		(string Text, Color Color)[] lines;
+		this.LinesLock.EnterReadLock();
+		try
+		{
+			lines = this.Lines.ToArray();
+		}
+		finally
+		{
+			this.LinesLock.ExitReadLock();
+		}
+		var endRow = Math.Min((this.vScrollBar.Value + this.vScrollBar.LargeChange) / this.FontHeight + 1, lines.Length - 1);
+		var index = lines.Take(startRow).Sum(elem => elem.Text.Length);
 		for (var row = startRow; row <= endRow; row++)
 		{
-			(var text, var color) = this.Lines[row];
+			(var text, var color) = lines[row];
 			if (color == Color.Empty)
 			{
 				color = this.ForeColor;
@@ -112,7 +150,7 @@ public partial class ConsoleControl : UserControl
 				this.TextBrush.Color = color;
 				e.Graphics.DrawString(text, this.Font, this.TextBrush, -this.hScrollBar.Value, y, this.StringFormat);
 			}
-			index += this.Lines[row].Text.Length;
+			index += lines[row].Text.Length;
 		}
 	}
 
@@ -121,12 +159,9 @@ public partial class ConsoleControl : UserControl
 	{
 		base.OnResize(e);
 
-		if (this.Lines is not null)
-		{
-			this.vScrollBar.LargeChange = Math.Max(this.Height - ClientMargin, 0);
-			this.hScrollBar.LargeChange = Math.Max(this.Width - ClientMargin, 0);
-			this.CalculationScroll();
-		}
+		this.vScrollBar.LargeChange = Math.Max(this.Height - ClientMargin, 0);
+		this.hScrollBar.LargeChange = Math.Max(this.Width - ClientMargin, 0);
+		this.CalculationScroll();
 	}
 
 	/// <inheritdoc/>
@@ -177,14 +212,32 @@ public partial class ConsoleControl : UserControl
 			case PressedKey.SELECT_ALL:
 				this.Pressed = PressedKey.NONE;
 				this.SelectedIndex = 0;
-				this.SelectedLength = this.Lines.Sum(elem => elem.Text.Length);
+				this.LinesLock.EnterReadLock();
+				try
+				{
+					this.SelectedLength = this.Lines.Sum(elem => elem.Text.Length);
+				}
+				finally
+				{
+					this.LinesLock.ExitReadLock();
+				}
 				e.Handled = true;
 				break;
 			case PressedKey.COPY:
 				this.Pressed = PressedKey.NONE;
 				var index = 0;
 				StringBuilder sb = new();
-				foreach ((var text, _) in this.Lines)
+				(string Text, Color Color)[] lines;
+				this.LinesLock.EnterReadLock();
+				try
+				{
+					lines = this.Lines.ToArray();
+				}
+				finally
+				{
+					this.LinesLock.ExitReadLock();
+				}
+				foreach ((var text, _) in lines)
 				{
 					if (index + text.Length > this.SelectedIndex)
 					{
@@ -214,7 +267,15 @@ public partial class ConsoleControl : UserControl
 		base.OnMouseDown(e);
 
 		this.Capture = true;
-		this.SelectedIndex = this.PointToCharIndex(e.Location);
+		this.LinesLock.EnterReadLock();
+		try
+		{
+			this.SelectedIndex = this.PointToCharIndex(e.Location);
+		}
+		finally
+		{
+			this.LinesLock.ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc/>
@@ -225,7 +286,16 @@ public partial class ConsoleControl : UserControl
 		if (this.Capture)
 		{
 			this.Capture = false;
-			var end = this.PointToCharIndex(e.Location);
+			int end;
+			this.LinesLock.EnterReadLock();
+			try
+			{
+				end = this.PointToCharIndex(e.Location);
+			}
+			finally
+			{
+				this.LinesLock.ExitReadLock();
+			}
 			if (end >= this.SelectedIndex)
 			{
 				this.SelectedLength = end - this.SelectedIndex;

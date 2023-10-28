@@ -75,7 +75,4 @@ public interface IExtend
 {
 	/// <summary>標準タブ名</summary>
 	string DefaultTabName { get; }
-
-	/// <summary>閉じたイベント</summary>
-	void Closed();
 }

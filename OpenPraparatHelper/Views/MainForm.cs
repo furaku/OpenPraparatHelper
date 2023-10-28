@@ -30,15 +30,4 @@ public partial class MainForm : Form
 			this.functionsTab.TabPages[key].Controls.Add((Control)extends);
 		}
 	}
-
-	/// <summary>閉じたイベント</summary>
-	/// <param name="e">イベント引数</param>
-	protected override void OnFormClosed(FormClosedEventArgs e)
-	{
-		base.OnFormClosed(e);
-		foreach (var extend in ExtendsManager.Extends)
-		{
-			extend.Closed();
-		}
-	}
 }

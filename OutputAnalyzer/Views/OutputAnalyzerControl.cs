@@ -27,15 +27,16 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	/// <summary>コンストラクタ</summary>
 	public OutputAnalyzerControl()
 	{
-		InitializeComponent();
-
-		this.outputBox.MaxLines = 30000;
-		this.outputBox.SelectedColor = Color.DeepSkyBlue;
-		this.Dock = DockStyle.Fill;
-
 		this.IsProcessing = false;
 		this.NewLinesLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
 		this.OutputNewLines = new();
+
+		InitializeComponent();
+
+		this.Dock = DockStyle.Fill;
+		this.outputBox.MaxLines = 30000;
+		this.outputBox.SelectedColor = Color.DeepSkyBlue;
+
 		this.timer.Tick += async (s, e) =>
 		{
 			(string, Color)[] lines;
@@ -50,6 +51,12 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 			}
 		};
 		this.timer.Start();
+
+		this.Disposed += (s, e) =>
+		{
+			this.Process?.Close();
+			this.NewLinesLock.Dispose();
+		};
 	}
 
 	/// <summary>実行ボタンクリックイベントハンドラ</summary>
@@ -389,13 +396,6 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	protected virtual void ShowMessageBox(string path)
 	{
 		MessageBox.Show(this, "ファイルにアクセス出来ませんでした。" + Environment.NewLine + "パス：" + path, this.DefaultTabName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-	}
-
-	/// <inheritdoc/>
-	public virtual void Closed()
-	{
-		this.Process?.Close();
-		this.NewLinesLock.Dispose();
 	}
 }
 
