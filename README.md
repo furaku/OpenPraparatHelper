@@ -6,8 +6,8 @@ OpenPraparatHelper
 ## Overview
 This application helps to analyze the output of [OepnParapart](https://github.com/A5size/OpenPraparat).
 
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/9f7906da-08f6-4500-9e01-a94b8006ca0e)
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/38fa4c5b-ceb9-467c-b1bd-b6141fd81912)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/6c99abd6-d952-43c2-8f60-065a73645f20)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/1632bbc5-2468-4796-8cbb-8b67c52afe04)
 
 ## Requirement
 * .Net 6.0 ~
@@ -50,8 +50,8 @@ OpenPraparatヘルパー
 ## 概要
 このアプリケーション[OepnParapart](https://github.com/A5size/OpenPraparat)の出力の解析を助けるものです。
 
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/9f7906da-08f6-4500-9e01-a94b8006ca0e)
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/38fa4c5b-ceb9-467c-b1bd-b6141fd81912)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/6c99abd6-d952-43c2-8f60-065a73645f20)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/1632bbc5-2468-4796-8cbb-8b67c52afe04)
 
 ## 依存要件
 * .Net 6.0 ~
