@@ -209,7 +209,7 @@ public class CellInSqlite : Repository<Cell>, IDisposable
 	/// <inheritdoc/>
 	public override IEnumerable<Cell> Find(
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null,
+		Action<IProcessMessage>? sendProcessMessageMethod = null,
 		params int[] elements_ids)
 	{
 		IEnumerable<Cell> ret;
@@ -219,14 +219,14 @@ public class CellInSqlite : Repository<Cell>, IDisposable
 SELECT *
 	FROM t_cell
 	WHERE t_cell.cell_id IN ({0})
-", string.Join(',', elements_ids)), cancellationToken, processMessageEnqueueMethod);
+", string.Join(',', elements_ids)), cancellationToken, sendProcessMessageMethod);
 		}
 		else
 		{
 			ret = this.Find($@"
 SELECT *
 	FROM t_cell
-", cancellationToken, processMessageEnqueueMethod);
+", cancellationToken, sendProcessMessageMethod);
 		}
 
 		return ret;
@@ -236,9 +236,9 @@ SELECT *
 	public override IEnumerable<Cell> Find(
 		string sql,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null)
+		Action<IProcessMessage>? sendProcessMessageMethod = null)
 	{
-		processMessageEnqueueMethod?.Invoke(new StartFindCellToSqlite(this));
+		sendProcessMessageMethod?.Invoke(new StartFindCellToSqlite(this));
 		foreach (var cell in this.DbContext
 			.Cells
 			.FromSql(FormattableStringFactory.Create(sql))
@@ -247,40 +247,40 @@ SELECT *
 			.Select(elem => ConvertCell(elem)))
 		{
 			cancellationToken?.ThrowIfCancellationRequested();
-			processMessageEnqueueMethod?.Invoke(new FindCellToSqlite(this, cell));
+			sendProcessMessageMethod?.Invoke(new FindCellToSqlite(this, cell));
 			yield return cell;
 		}
-		processMessageEnqueueMethod?.Invoke(new EndFindCellToSqlite(this));
+		sendProcessMessageMethod?.Invoke(new EndFindCellToSqlite(this));
 	}
 
 	/// <inheritdoc/>
 	public override IEnumerable<R> Query<R>(
 		string sql,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null,
+		Action<IProcessMessage>? sendProcessMessageMethod = null,
 		params object[] parameters)
 	{
-		processMessageEnqueueMethod?.Invoke(new StartQueryCellToSqlite(this));
+		sendProcessMessageMethod?.Invoke(new StartQueryCellToSqlite(this));
 		var i = 1;
 		foreach (var result in this.DbContext.Database.SqlQueryRaw<R>(sql, parameters))
 		{
 			cancellationToken?.ThrowIfCancellationRequested();
-			processMessageEnqueueMethod?.Invoke(new QueryCellToSqlite(this, i++, result));
+			sendProcessMessageMethod?.Invoke(new QueryCellToSqlite(this, i++, result));
 			yield return result;
 		}
-		processMessageEnqueueMethod?.Invoke(new EndQueryCellToSqlite(this));
+		sendProcessMessageMethod?.Invoke(new EndQueryCellToSqlite(this));
 	}
 
 	/// <inheritdoc/>
 	public override void Marge(
 		IEnumerable<Cell> elemnets,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null)
+		Action<IProcessMessage>? sendProcessMessageMethod = null)
 	{
 		// TODO 既に有る物は更新
 
 		cancellationToken?.ThrowIfCancellationRequested();
-		processMessageEnqueueMethod?.Invoke(new StartMargeToSqlite(this));
+		sendProcessMessageMethod?.Invoke(new StartMargeToSqlite(this));
 		var database = this.DbContext.Database;
 		using var locker = new ManualResetEventSlim(true);
 		foreach (var elemnet in elemnets)
@@ -415,12 +415,12 @@ value
 )";
 					database.ExecuteSqlRaw(sql);
 				}
-				processMessageEnqueueMethod?.Invoke(new MargeCellToSqlite(this, elemnet));
+				sendProcessMessageMethod?.Invoke(new MargeCellToSqlite(this, elemnet));
 				locker.Set();
 			});
 		}
 		locker.Wait();
-		processMessageEnqueueMethod?.Invoke(new EndMargeToSqlite(this));
+		sendProcessMessageMethod?.Invoke(new EndMargeToSqlite(this));
 	}
 
 	/// <summary>破棄</summary>
@@ -444,7 +444,7 @@ value
 
 #region 工程メッセージ
 /// <summary>Sqliteにマージ開始</summary>
-public class StartMargeToSqlite : ProcessMassage<CellInSqlite, object?>
+public class StartMargeToSqlite : ProcessMessage<CellInSqlite, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -452,7 +452,7 @@ public class StartMargeToSqlite : ProcessMassage<CellInSqlite, object?>
 }
 
 /// <summary>Sqliteにマージ終了</summary>
-public class EndMargeToSqlite : ProcessMassage<CellInSqlite, object?>
+public class EndMargeToSqlite : ProcessMessage<CellInSqlite, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -460,7 +460,7 @@ public class EndMargeToSqlite : ProcessMassage<CellInSqlite, object?>
 }
 
 /// <summary>Sqliteに細胞をマージ</summary>
-public class MargeCellToSqlite : ProcessMassage<CellInSqlite, Cell>
+public class MargeCellToSqlite : ProcessMessage<CellInSqlite, Cell>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -469,7 +469,7 @@ public class MargeCellToSqlite : ProcessMassage<CellInSqlite, Cell>
 }
 
 /// <summary>Sqliteに細胞の検索開始</summary>
-public class StartFindCellToSqlite : ProcessMassage<CellInSqlite, object?>
+public class StartFindCellToSqlite : ProcessMessage<CellInSqlite, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -477,7 +477,7 @@ public class StartFindCellToSqlite : ProcessMassage<CellInSqlite, object?>
 }
 
 /// <summary>Sqliteに細胞の検索終了</summary>
-public class EndFindCellToSqlite : ProcessMassage<CellInSqlite, object?>
+public class EndFindCellToSqlite : ProcessMessage<CellInSqlite, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -485,7 +485,7 @@ public class EndFindCellToSqlite : ProcessMassage<CellInSqlite, object?>
 }
 
 /// <summary>Sqliteに細胞の検索</summary>
-public class FindCellToSqlite : ProcessMassage<CellInSqlite, Cell>
+public class FindCellToSqlite : ProcessMessage<CellInSqlite, Cell>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -494,7 +494,7 @@ public class FindCellToSqlite : ProcessMassage<CellInSqlite, Cell>
 }
 
 /// <summary>Sqliteに細胞の問い合わせ開始</summary>
-public class StartQueryCellToSqlite : ProcessMassage<CellInSqlite, object?>
+public class StartQueryCellToSqlite : ProcessMessage<CellInSqlite, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -502,7 +502,7 @@ public class StartQueryCellToSqlite : ProcessMassage<CellInSqlite, object?>
 }
 
 /// <summary>Sqliteに細胞の問い合わせ終了</summary>
-public class EndQueryCellToSqlite : ProcessMassage<CellInSqlite, object?>
+public class EndQueryCellToSqlite : ProcessMessage<CellInSqlite, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -510,7 +510,7 @@ public class EndQueryCellToSqlite : ProcessMassage<CellInSqlite, object?>
 }
 
 /// <summary>Sqliteに細胞の問い合わせ</summary>
-public class QueryCellToSqlite : ProcessMassage<CellInSqlite, (int Number, object? Result)>
+public class QueryCellToSqlite : ProcessMessage<CellInSqlite, (int Number, object? Result)>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>

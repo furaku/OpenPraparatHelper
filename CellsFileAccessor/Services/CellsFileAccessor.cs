@@ -30,19 +30,19 @@ public class CellsFileAccessor : IDisposable
 
 	/// <summary>ファイルから粒子の読み込み</summary>
 	/// <param name="cancellationToken">キャンセルトークン</param>
-	/// <param name="processMessageEnqueueMethod">工程メッセージ追加メッセージ</param>
+	/// <param name="sendProcessMessageMethod">工程メッセージ送信メッセージ</param>
 	/// <param name="ids">粒子ID</param>
 	/// <exception cref="OperationCanceledException">キャンセル例外</exception>
 	/// <exception cref="FailToFileAccessException">ファイルアクセス失敗</exception>
 	/// <exception cref="InvalidFileContentException">ファイル内容不正</exception>
 	public virtual void Load(
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null,
+		Action<IProcessMessage>? sendProcessMessageMethod = null,
 		params int[] ids)
 	{
 
 		var particles = new ParticleInFile(this.FilePath)
-			.Find(null, processMessageEnqueueMethod, ids);
+			.Find(null, sendProcessMessageMethod, ids);
 
 		int[] containsIds;
 		if (ids.Length > 0)
@@ -61,36 +61,36 @@ SELECT t_cell.cell_id
 ").ToArray();
 		}
 
-		this.CellSqliteRepository.Marge(particles.Where(elem => !containsIds.Contains(elem.ID)).Cast<Cell>(), cancellationToken, processMessageEnqueueMethod);
+		this.CellSqliteRepository.Marge(particles.Where(elem => !containsIds.Contains(elem.ID)).Cast<Cell>(), cancellationToken, sendProcessMessageMethod);
 	}
 
 	/// <summary>検索</summary>
 	/// <param name="sql">SQL</param>
 	/// <param name="cancellationToken">キャンセルトークン</param>
-	/// <param name="processMessageEnqueueMethod">工程メッセージ追加メッセージ</param>
+	/// <param name="sendProcessMessageMethod">工程メッセージ送信メッセージ</param>
 	/// <returns>結果</returns>
 	public virtual IEnumerable<Cell> Find(
 		string sql,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null)
+		Action<IProcessMessage>? sendProcessMessageMethod = null)
 	{
-		return this.CellSqliteRepository.Find(sql, cancellationToken, processMessageEnqueueMethod);
+		return this.CellSqliteRepository.Find(sql, cancellationToken, sendProcessMessageMethod);
 	}
 
 	/// <summary>問い合わせ</summary>
 	/// <typeparam name="R">結果の型</typeparam>
 	/// <param name="sql">SQL</param>
 	/// <param name="cancellationToken">キャンセルトークン</param>
-	/// <param name="processMessageEnqueueMethod">工程メッセージ追加メッセージ</param>
+	/// <param name="sendProcessMessageMethod">工程メッセージ送信メッセージ</param>
 	/// <param name="parameters">パラメータ</param>
 	/// <returns>結果</returns>
 	public virtual IEnumerable<R> Query<R>(
 		string sql,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null,
+		Action<IProcessMessage>? sendProcessMessageMethod = null,
 		params object[] parameters)
 	{
-		return this.CellSqliteRepository.Query<R>(sql, cancellationToken, processMessageEnqueueMethod, parameters);
+		return this.CellSqliteRepository.Query<R>(sql, cancellationToken, sendProcessMessageMethod, parameters);
 	}
 
 	/// <summary>破棄</summary>

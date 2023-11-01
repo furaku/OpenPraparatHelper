@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace furaku.Common.Services;
 
 /// <summary>工程メッセージ</summary>
 /// <typeparam name="S">送信者の型</typeparam>
 /// <typeparam name="V">値の型</typeparam>
-public abstract class ProcessMassage<S, V> : IProcessMessage where S : class
+public abstract class ProcessMessage<S, V> : IProcessMessage where S : class
 {
 	/// <summary>送信者</summary>
 	public virtual S Sender { get; private init; }
@@ -26,7 +24,7 @@ public abstract class ProcessMassage<S, V> : IProcessMessage where S : class
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
 	/// <param name="val">値</param>
-	public ProcessMassage(S sender, V val)
+	public ProcessMessage(S sender, V val)
 	{
 		this.Sender = sender;
 		this.Value = val;

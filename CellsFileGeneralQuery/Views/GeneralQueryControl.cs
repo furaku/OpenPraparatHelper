@@ -5,15 +5,9 @@ using furaku.CellsFileAccessorLib.Values;
 using furaku.CellsFileGeneralQuery.Values;
 using Microsoft.Data.Sqlite;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using furaku.Common.Services;
 
 namespace furaku.CellsFileGeneralQuery;
@@ -26,9 +20,6 @@ public partial class GeneralQueryControl : UserControl, IExtend
 
 	/// <summary>細胞ファイルアクセサ</summary>
 	protected virtual CellsFileAccessor? CellsFileAccessor { get; set; }
-
-	/// <summary>工程メッセンジャ</summary>
-	protected virtual ConcurrentQueue<IProcessMessage> ProcessMessages { get; private init; }
 
 	/// <summary>タスク</summary>
 	protected virtual ISimpleCancelableTask? Task { get; set; }
@@ -60,7 +51,6 @@ public partial class GeneralQueryControl : UserControl, IExtend
 	public GeneralQueryControl()
 	{
 		this.CellsFileAccessor = null;
-		this.ProcessMessages = new();
 		this.Task = null;
 
 		this.InitializeComponent();
@@ -71,62 +61,6 @@ public partial class GeneralQueryControl : UserControl, IExtend
 		this.State = GenralQueryControlState.NO_FILE;
 
 		this.openFileDialog.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
-		this.outputViewTimer.Tick += (s, e) =>
-		{
-			var lines = new List<(string, Color)>();
-			while (this.ProcessMessages.TryDequeue(out var message))
-			{
-				if (message is StartFindParticleFromFile)
-				{
-					lines.Add(("", Color.Empty));
-					lines.Add(("ファイルからの読み込みを開始", Color.Blue));
-				}
-				else if (message is EndFindParticleFromFile)
-				{
-					lines.Add(("ファイルからの読み込みを完了", Color.Blue));
-				}
-				else if (message is ReadParticleFromFile readParticle)
-				{
-					lines.Add((string.Format("粒子を読み込み ID：{0}", readParticle.Value.ID), Color.Empty));
-				}
-				else if (message is StartFindCellToSqlite)
-				{
-					lines.Add(("", Color.Empty));
-					lines.Add(("細胞の検索を開始", Color.Blue));
-				}
-				else if (message is EndFindCellToSqlite)
-				{
-					lines.Add(("細胞の検索を完了", Color.Blue));
-				}
-				else if (message is FindCellToSqlite findCell)
-				{
-					lines.Add((string.Format("細胞を発見 ID：{0}", findCell.Value.ID), Color.Empty));
-				}
-				else if (message is StartQueryCellToSqlite)
-				{
-					lines.Add(("", Color.Empty));
-					lines.Add(("細胞への問い合わせを開始", Color.Blue));
-				}
-				else if (message is EndQueryCellToSqlite)
-				{
-					lines.Add(("細胞への問い合わせを完了", Color.Blue));
-				}
-				else if (message is QueryCellToSqlite queryResult)
-				{
-					lines.Add((string.Format("問い合わせ結果 {0}：{1}", queryResult.Value.Number, queryResult.Value.Result), Color.Empty));
-				}
-				else if (message is StartCancelation)
-				{
-					lines.Add(("キャンセルを開始", Color.Blue));
-				}
-				else if (message is EndCnacelation)
-				{
-					lines.Add(("キャンセルを完了", Color.Blue));
-				}
-			}
-			this.BeginInvoke(async () => await this.outputBox.AppendLine(lines.ToArray()));
-		};
-		this.outputViewTimer.Start();
 
 		this.Disposed += (s, e) =>
 		{
@@ -135,6 +69,59 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			this.CellsFileAccessor?.Dispose();
 			this.CellsFileAccessor = null;
 		};
+	}
+
+	/// <summary>メッセージを受信</summary>
+	/// <param name="message">メッセージ</param>
+	protected virtual void RecieveMessage(IProcessMessage message)
+	{
+		System.Threading.Tasks.Task.Run(() =>
+		{
+			if (message is StartFindParticleFromFile)
+			{
+				this.outputBox.AppendLine(("", Color.Empty), ("ファイルからの読み込みを開始", Color.Blue));
+			}
+			else if (message is EndFindParticleFromFile)
+			{
+				this.outputBox.AppendLine(("ファイルからの読み込みを完了", Color.Blue));
+			}
+			else if (message is ReadParticleFromFile readParticle)
+			{
+				this.outputBox.AppendLine((string.Format("粒子を読み込み ID：{0}", readParticle.Value.ID), Color.Empty));
+			}
+			else if (message is StartFindCellToSqlite)
+			{
+				this.outputBox.AppendLine(("", Color.Empty), ("細胞の検索を開始", Color.Blue));
+			}
+			else if (message is EndFindCellToSqlite)
+			{
+				this.outputBox.AppendLine(("細胞の検索を完了", Color.Blue));
+			}
+			else if (message is FindCellToSqlite findCell)
+			{
+				this.outputBox.AppendLine((string.Format("細胞を発見 ID：{0}", findCell.Value.ID), Color.Empty));
+			}
+			else if (message is StartQueryCellToSqlite)
+			{
+				this.outputBox.AppendLine(("", Color.Empty), ("細胞への問い合わせを開始", Color.Blue));
+			}
+			else if (message is EndQueryCellToSqlite)
+			{
+				this.outputBox.AppendLine(("細胞への問い合わせを完了", Color.Blue));
+			}
+			else if (message is QueryCellToSqlite queryResult)
+			{
+				this.outputBox.AppendLine((string.Format("問い合わせ結果 {0}：{1}", queryResult.Value.Number, queryResult.Value.Result), Color.Empty));
+			}
+			else if (message is StartCancelation)
+			{
+				this.outputBox.AppendLine(("キャンセルを開始", Color.Blue));
+			}
+			else if (message is EndCnacelation)
+			{
+				this.outputBox.AppendLine(("キャンセルを完了", Color.Blue));
+			}
+		});
 	}
 
 	/// <summary>ファイル指定ボタンクリックイベントハンドラ</summary>
@@ -162,7 +149,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 		{
 			this.State = GenralQueryControlState.CANCEL_LOAD;
 			this.Task?.Cancel();
-			this.ProcessMessages.Enqueue(new StartCancelation(this));
+			this.RecieveMessage(new StartCancelation(this));
 		}
 		else
 		{
@@ -175,7 +162,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 					.Select(elem => int.Parse(elem)).ToArray();
 				var task = new SimpleCancelableTask(token =>
 				{
-					this.CellsFileAccessor!.Load(token, this.ProcessMessages.Enqueue, ids);
+					this.CellsFileAccessor!.Load(token, this.RecieveMessage, ids);
 				});
 				this.Task = task;
 				await task.Start();
@@ -193,7 +180,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			{
 				try
 				{
-					this.ProcessMessages.Enqueue(new EndCnacelation(this));
+					this.RecieveMessage(new EndCnacelation(this));
 					this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
 				}
 				catch (ObjectDisposedException) { }
@@ -224,7 +211,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 		{
 			this.State = GenralQueryControlState.CANCEL_FIND;
 			this.Task?.Cancel();
-			this.ProcessMessages.Enqueue(new StartCancelation(this));
+			this.RecieveMessage(new StartCancelation(this));
 		}
 		else
 		{
@@ -236,7 +223,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 				var task = new SimpleCancelableTask<TreeNode[]>(token =>
 				{
 					return this.CellsFileAccessor!
-					.Find(this.findSQLBox.Text, token, this.ProcessMessages.Enqueue)
+					.Find(this.findSQLBox.Text, token, this.RecieveMessage)
 					.Select(elem => CreateNode(elem))
 					.ToArray();
 				});
@@ -252,7 +239,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			{
 				try
 				{
-					this.ProcessMessages.Enqueue(new EndCnacelation(this));
+					this.RecieveMessage(new EndCnacelation(this));
 					this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
 				}
 				catch (ObjectDisposedException) { }
@@ -396,7 +383,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 		{
 			this.State = GenralQueryControlState.CANCEL_QUERY;
 			this.Task?.Cancel();
-			this.ProcessMessages.Enqueue(new StartCancelation(this));
+			this.RecieveMessage(new StartCancelation(this));
 		}
 		else
 		{
@@ -411,19 +398,19 @@ public partial class GeneralQueryControl : UserControl, IExtend
 					return (sqltype.Type switch
 					{
 						SqlTypes.BOOL => this.CellsFileAccessor!
-						.Query<bool>(this.scalarSQLBox.Text, token, this.ProcessMessages.Enqueue)
+						.Query<bool>(this.scalarSQLBox.Text, token, this.RecieveMessage)
 						.Select((elem, index) => (index, elem.ToString())),
 						SqlTypes.STRING => this.CellsFileAccessor!
-						.Query<string>(this.scalarSQLBox.Text, token, this.ProcessMessages.Enqueue)
+						.Query<string>(this.scalarSQLBox.Text, token, this.RecieveMessage)
 						.Select((elem, index) => (index, elem[..Math.Min(elem.Length, short.MaxValue)])),
 						SqlTypes.INTEGER => this.CellsFileAccessor!
-						.Query<int>(this.scalarSQLBox.Text, token, this.ProcessMessages.Enqueue)
+						.Query<int>(this.scalarSQLBox.Text, token, this.RecieveMessage)
 						.Select((elem, index) => (index, elem.ToString())),
 						SqlTypes.DECIMAL => this.CellsFileAccessor!
-						.Query<decimal>(this.scalarSQLBox.Text, token, this.ProcessMessages.Enqueue)
+						.Query<decimal>(this.scalarSQLBox.Text, token, this.RecieveMessage)
 						.Select((elem, index) => (index, elem.ToString())),
 						SqlTypes.DOUBLE => this.CellsFileAccessor!
-						.Query<double>(this.scalarSQLBox.Text, token, this.ProcessMessages.Enqueue)
+						.Query<double>(this.scalarSQLBox.Text, token, this.RecieveMessage)
 						.Select((elem, index) => (index, elem.ToString())),
 						_ => throw new NotImplementedException(),
 					}).ToArray();
@@ -443,7 +430,7 @@ public partial class GeneralQueryControl : UserControl, IExtend
 			{
 				try
 				{
-					this.ProcessMessages.Enqueue(new EndCnacelation(this));
+					this.RecieveMessage(new EndCnacelation(this));
 					this.ShowMessageBox(MessageBoxMessage.COMPLETED_CANCEL);
 				}
 				catch (ObjectDisposedException) { }
@@ -551,7 +538,7 @@ public enum MessageBoxMessage
 
 #region 工程メッセージ
 /// <summary>キャンセル開始</summary>
-public class StartCancelation : ProcessMassage<GeneralQueryControl, object?>
+public class StartCancelation : ProcessMessage<GeneralQueryControl, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -559,7 +546,7 @@ public class StartCancelation : ProcessMassage<GeneralQueryControl, object?>
 }
 
 /// <summary>キャンセル終了</summary>
-public class EndCnacelation : ProcessMassage<GeneralQueryControl, object?>
+public class EndCnacelation : ProcessMessage<GeneralQueryControl, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>

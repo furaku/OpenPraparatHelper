@@ -118,7 +118,7 @@ public class ParticleInFile : Repository<IParticle>
 	/// <exception cref="InvalidFileContentException">ファイル内容不正</exception>
 	public override IEnumerable<IParticle> Find(
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null,
+		Action<IProcessMessage>? sendProcessMessageMethod = null,
 		params int[] elements_ids)
 	{
 		StreamReader? sr = null;
@@ -129,7 +129,7 @@ public class ParticleInFile : Repository<IParticle>
 			try
 			{
 				cancellationToken?.ThrowIfCancellationRequested();
-				processMessageEnqueueMethod?.Invoke(new StartFindParticleFromFile(this));
+				sendProcessMessageMethod?.Invoke(new StartFindParticleFromFile(this));
 				sr = new StreamReader(this.FilePath);
 				if (sr.ReadLine() is null)
 				{
@@ -145,7 +145,7 @@ public class ParticleInFile : Repository<IParticle>
 
 			while (particle is not null)
 			{
-				processMessageEnqueueMethod?.Invoke(new ReadParticleFromFile(this, particle));
+				sendProcessMessageMethod?.Invoke(new ReadParticleFromFile(this, particle));
 				if (ids is not null)
 				{
 					if (ids.Contains(particle.ID))
@@ -156,7 +156,7 @@ public class ParticleInFile : Repository<IParticle>
 						}
 						else
 						{
-							processMessageEnqueueMethod?.Invoke(new NotExistsCell(this, particle));
+							sendProcessMessageMethod?.Invoke(new NotExistsCell(this, particle));
 						}
 						ids.Remove(particle.ID);
 						if (ids.Count <= 0)
@@ -187,7 +187,7 @@ public class ParticleInFile : Repository<IParticle>
 		{
 			sr?.Dispose();
 		}
-		processMessageEnqueueMethod?.Invoke(new EndFindParticleFromFile(this));
+		sendProcessMessageMethod?.Invoke(new EndFindParticleFromFile(this));
 	}
 
 	/// <inheritdoc/>
@@ -197,7 +197,7 @@ public class ParticleInFile : Repository<IParticle>
 #pragma warning restore CS0809 // 旧形式のメンバーが、旧形式でないメンバーをオーバーライドします
 		string sql,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null)
+		Action<IProcessMessage>? sendProcessMessageMethod = null)
 	{
 		throw new NotImplementedException();
 	}
@@ -209,7 +209,7 @@ public class ParticleInFile : Repository<IParticle>
 #pragma warning restore CS0809 // 旧形式のメンバーが、旧形式でないメンバーをオーバーライドします
 		string sql,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null,
+		Action<IProcessMessage>? sendProcessMessageMethod = null,
 		params object[] parameters)
 	{
 		throw new NotImplementedException();
@@ -222,7 +222,7 @@ public class ParticleInFile : Repository<IParticle>
 #pragma warning restore CS0809 // 旧形式のメンバーが、旧形式でないメンバーをオーバーライドします
 		IEnumerable<IParticle> elemnets,
 		CancellationToken? cancellationToken = null,
-		Action<IProcessMessage>? processMessageEnqueueMethod = null)
+		Action<IProcessMessage>? sendProcessMessageMethod = null)
 	{
 		throw new NotImplementedException();
 	}
@@ -611,7 +611,7 @@ public class InvalidFileContentException : Exception
 
 #region 工程メッセージ
 /// <summary>ファイルからの粒子検索開始</summary>
-public class StartFindParticleFromFile : ProcessMassage<ParticleInFile, object?>
+public class StartFindParticleFromFile : ProcessMessage<ParticleInFile, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -619,7 +619,7 @@ public class StartFindParticleFromFile : ProcessMassage<ParticleInFile, object?>
 }
 
 /// <summary>ファイルからの粒子検索終了</summary>
-public class EndFindParticleFromFile : ProcessMassage<ParticleInFile, object?>
+public class EndFindParticleFromFile : ProcessMessage<ParticleInFile, object?>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -627,7 +627,7 @@ public class EndFindParticleFromFile : ProcessMassage<ParticleInFile, object?>
 }
 
 /// <summary>ファイルからの粒子読み込み</summary>
-public class ReadParticleFromFile : ProcessMassage<ParticleInFile, IParticle>
+public class ReadParticleFromFile : ProcessMessage<ParticleInFile, IParticle>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>
@@ -636,7 +636,7 @@ public class ReadParticleFromFile : ProcessMassage<ParticleInFile, IParticle>
 }
 
 /// <summary>存在する細胞でない</summary>
-public class NotExistsCell : ProcessMassage<ParticleInFile, IParticle>
+public class NotExistsCell : ProcessMessage<ParticleInFile, IParticle>
 {
 	/// <summary>コンストラクタ</summary>
 	/// <param name="sender">送信者</param>

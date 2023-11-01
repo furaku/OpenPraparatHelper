@@ -28,7 +28,6 @@ partial class GeneralQueryControl
 	/// </summary>
 	private void InitializeComponent()
 	{
-		components = new System.ComponentModel.Container();
 		specificationFileButton = new Button();
 		openFileDialog = new OpenFileDialog();
 		startPanel = new Panel();
@@ -53,7 +52,6 @@ partial class GeneralQueryControl
 		panel1 = new Panel();
 		scalarSQLBox = new TextBox();
 		scalarTypeBox = new ComboBox();
-		outputViewTimer = new System.Windows.Forms.Timer(components);
 		mainContainer = new SplitContainer();
 		startPanel.SuspendLayout();
 		outputTab.SuspendLayout();
@@ -195,6 +193,7 @@ partial class GeneralQueryControl
 		outputBox.SelectedColor = Color.DeepSkyBlue;
 		outputBox.Size = new Size(786, 210);
 		outputBox.TabIndex = 0;
+		outputBox.UpdateInterval = 100;
 		// 
 		// tableLayoutPanel1
 		// 
@@ -401,7 +400,6 @@ partial class GeneralQueryControl
 	private Label label2;
 	private Label label3;
 	private ComboBox scalarTypeBox;
-	private System.Windows.Forms.Timer outputViewTimer;
 	private Panel panel1;
 	private TextBox scalarSQLBox;
 	private TabPage tabPage3;

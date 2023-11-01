@@ -28,8 +28,10 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			components = new System.ComponentModel.Container();
 			vScrollBar = new VScrollBar();
 			hScrollBar = new HScrollBar();
+			timer = new System.Windows.Forms.Timer(components);
 			SuspendLayout();
 			// 
 			// vScrollBar
@@ -69,5 +71,6 @@
 
 		private VScrollBar vScrollBar;
 		private HScrollBar hScrollBar;
+		private System.Windows.Forms.Timer timer;
 	}
 }

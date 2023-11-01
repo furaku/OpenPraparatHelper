@@ -12,50 +12,24 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	/// <inheritdoc/>
 	public virtual string DefaultTabName => "出力解析";
 
-	/// <summary>実行中の出力中か</summary>
-	public virtual bool IsProcessing { get; protected set; }
-
-	/// <summary>出力新規行操作ロック</summary>
-	protected ReaderWriterLockSlim NewLinesLock { get; }
-
-	/// <summary>出力新規追加行</summary>
-	protected virtual List<(string, Color)> OutputNewLines { get; }
-
 	/// <summary>OpenPraparatを実行しているプロセス</summary>
 	protected virtual Process? Process { get; set; }
 
 	/// <summary>コンストラクタ</summary>
 	public OutputAnalyzerControl()
 	{
-		this.IsProcessing = false;
-		this.NewLinesLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-		this.OutputNewLines = new();
-
 		InitializeComponent();
 
 		this.Dock = DockStyle.Fill;
 		this.outputBox.MaxLines = 30000;
 		this.outputBox.SelectedColor = Color.DeepSkyBlue;
 
-		this.timer.Tick += async (s, e) =>
-		{
-			(string, Color)[] lines;
-			if (this.NewLinesLock.TryEnterUpgradeableReadLock(0))
-			{
-				lines = this.OutputNewLines.ToArray();
-				this.NewLinesLock.EnterWriteLock();
-				this.OutputNewLines.Clear();
-				this.NewLinesLock.ExitWriteLock();
-				this.NewLinesLock.ExitUpgradeableReadLock();
-				await this.outputBox.AppendLine(lines);
-			}
-		};
-		this.timer.Start();
+		this.openFileDialog.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
+		this.openFileDialog.FileName = "praparat_gui.exe";
 
 		this.Disposed += (s, e) =>
 		{
 			this.Process?.Close();
-			this.NewLinesLock.Dispose();
 		};
 	}
 
@@ -145,22 +119,22 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 						var reader = this.Process.StandardOutput;
 						try
 						{
-							var count = 0;
+							var logRow = 0;
+							var isProcess = false;
+							var stepCount = 0;
 							while (!this.Process.WaitForExit(0))
 							{
 								var line = reader.ReadLine();
 								while (line is not null)
 								{
-									this.NewLinesLock.EnterWriteLock();
-									this.OutputNewLines.Add((line, Color.Empty));
-									this.NewLinesLock.ExitWriteLock();
+									this.outputBox.AppendLine((line, Color.Empty));
 									logWriter?.WriteLineAsync(line);
-									this.WriteLineToCsv(csvWriter, line);
+									this.WriteLineToCsv(ref isProcess, ref stepCount, csvWriter, line);
 									line = reader.ReadLine();
 									if (logWriter is not null)
 									{
-										count = (count + 1) % (int)this.rotaionBox.Value;
-										if (count == 0)
+										logRow = (logRow + 1) % (int)this.switchFileBox.Value;
+										if (logRow == 0)
 										{
 											logWriter?.Dispose();
 											logWriterOrg?.Dispose();
@@ -212,9 +186,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 							var line = reader.ReadLine();
 							while (line is not null)
 							{
-								this.NewLinesLock.EnterWriteLock();
-								this.OutputNewLines.Add((line, Color.Red));
-								this.NewLinesLock.ExitWriteLock();
+								this.outputBox.AppendLine((line, Color.Red));
 								line = reader.ReadLine();
 							}
 						}
@@ -236,6 +208,17 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 		}
 	}
 
+	/// <summary>参照ボタンクリックイベントハンドラ</summary>
+	/// <param name="sender">送信者</param>
+	/// <param name="e">イベント引数</param>
+	protected virtual void RefButton_Click(object sender, EventArgs e)
+	{
+		if (this.openFileDialog.ShowDialog(this) == DialogResult.OK)
+		{
+			this.openpraparatPathBox.Text = this.openFileDialog.FileNames[0];
+		}
+	}
+
 	/// <summary>
 	/// 実行中かを設定
 	/// </summary>
@@ -243,25 +226,32 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 	protected virtual void SetIsExecuting(bool isExecuting)
 	{
 		this.openpraparatPathBox.Enabled = !isExecuting;
+		this.refButton.Enabled = !isExecuting;
 		this.logfilePathBox.Enabled = !isExecuting;
+		this.switchFileBox.Enabled = !isExecuting;
 		this.csvfilePathBox.Enabled = !isExecuting;
-		this.rotaionBox.Enabled = !isExecuting;
+		this.intervalBox.Enabled = !isExecuting;
 		this.executeButton.Text = isExecuting ? "停止(&G)" : "実行(&G)";
 	}
 
 	/// <summary>行をCSVに書き出し</summary>
+	/// <param name="isProcess">実行中の出力中か</param>
+	/// <param name="count">ステップ数</param>
 	/// <param name="writer">書き出し器</param>
 	/// <param name="line">行</param>
-	protected virtual void WriteLineToCsv(TextWriter? writer, string line)
+	protected virtual void WriteLineToCsv(ref bool isProcess, ref int count, TextWriter? writer, string line)
 	{
-		if (this.IsProcessing)
+		if (isProcess)
 		{
 			if (line.Trim() == "#####################################################")
 			{
-				writer?.WriteLineAsync();
-				this.IsProcessing = false;
+				if (count == 0)
+				{
+					writer?.WriteLineAsync();
+				}
+				isProcess = false;
 			}
-			else
+			else if (count == 0)
 			{
 				var parameter = line.Split('=');
 				if (parameter.Length == 2)
@@ -365,7 +355,8 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 		{
 			if (line.Trim() == "#####################################################")
 			{
-				this.IsProcessing = true;
+				isProcess = true;
+				count = (count + 1) % (int)this.intervalBox.Value;
 			}
 		}
 	}

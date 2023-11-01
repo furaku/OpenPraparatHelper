@@ -18,14 +18,24 @@ public partial class ConsoleControl : UserControl
 	/// <summary>選択中の色</summary>
 	public virtual Color SelectedColor { get; set; }
 
+	/// <summary>更新間隔</summary>
+	public virtual int UpdateInterval
+	{
+		get => this.timer.Interval;
+		set => this.timer.Interval = value;
+	}
+
 	/// <summary>テキスト描画用ブラシ</summary>
 	protected virtual SolidBrush TextBrush { get; }
 
-	/// <summary></summary>
+	/// <summary>変更有りか</summary>
+	protected virtual bool Modified { get; set; }
+
+	/// <summary>行ロック</summary>
 	protected virtual ReaderWriterLockSlim LinesLock { get; }
 
 	/// <summary>行</summary>
-	protected virtual List<(string Text, Color Color)> Lines { get; }
+	protected virtual List<(string Text, Color Color, float Width)> Lines { get; }
 
 	/// <summary>キー押下種別</summary>
 	protected virtual PressedKey Pressed { get; set; }
@@ -44,6 +54,7 @@ public partial class ConsoleControl : UserControl
 	{
 		this.Pressed = PressedKey.NONE;
 		this.TextBrush = new(this.ForeColor);
+		this.Modified = false;
 		this.LinesLock = new();
 		this.Lines = new();
 		this.StringFormat = new(StringFormatFlags.NoWrap | StringFormatFlags.MeasureTrailingSpaces)
@@ -53,45 +64,58 @@ public partial class ConsoleControl : UserControl
 
 		InitializeComponent();
 
+		this.timer.Tick += (s, e) =>
+		{
+			UpdateScrolBar();
+		};
+		this.timer.Start();
+
 		this.Disposed += (s, e) => this.LinesLock.Dispose();
 	}
 
 	/// <summary>行を追加</summary>
 	/// <param name="lines">行</param>
-	public async virtual Task AppendLine(params (string, Color)[] lines)
+	public virtual void AppendLine(params (string Text, Color Color)[] lines)
 	{
-		if (lines.Length > 0)
+		this.LinesLock.EnterWriteLock();
+		try
 		{
-			await Task.Run(() =>
-			{
-				this.LinesLock.EnterUpgradeableReadLock();
-				try
-				{
-					if ((this.Lines.Count > 0) && (this.Lines.Count + lines.Length > this.MaxLines))
-					{
-						this.LinesLock.EnterWriteLock();
-						this.Lines.RemoveRange(0, Math.Min(this.Lines.Count + lines.Length - this.MaxLines, this.Lines.Count));
-					}
-					else
-					{
-						this.LinesLock.EnterWriteLock();
-					}
-					this.Lines.AddRange(lines.Take(this.MaxLines));
-					this.LinesLock.ExitWriteLock();
-				}
-				finally
-				{
-					this.LinesLock.ExitUpgradeableReadLock();
-				}
-			});
-			this.LinesLock.EnterReadLock();
+			using var g = this.CreateGraphics();
+			this.Lines.AddRange(lines.Take(this.MaxLines).Select(elem => (elem.Text, elem.Color, g.MeasureString(elem.Text, this.Font, new PointF(0, 0), this.StringFormat).Width)));
+			this.Modified = true;
+		}
+		finally
+		{
+			this.LinesLock.ExitWriteLock();
+		}
+	}
+
+	/// <summary>スクロールバーを更新</summary>
+	public virtual void UpdateScrolBar()
+	{
+		if (this.Modified)
+		{
+			this.Modified = false;
+			this.LinesLock.EnterUpgradeableReadLock();
 			try
 			{
+				if (this.Lines.Count > this.MaxLines)
+				{
+					this.LinesLock.EnterWriteLock();
+					try
+					{
+						this.Lines.RemoveRange(0, this.Lines.Count - this.MaxLines);
+					}
+					finally
+					{
+						this.LinesLock.ExitWriteLock();
+					}
+				}
 				this.CalculationScroll();
 			}
 			finally
 			{
-				this.LinesLock.ExitReadLock();
+				this.LinesLock.ExitUpgradeableReadLock();
 			}
 			this.vScrollBar.Value = Math.Max(this.vScrollBar.Maximum - this.vScrollBar.LargeChange, 0);
 			this.Invalidate();
@@ -104,7 +128,7 @@ public partial class ConsoleControl : UserControl
 		base.OnPaint(e);
 
 		var startRow = this.vScrollBar.Value / this.FontHeight;
-		(string Text, Color Color)[] lines;
+		(string Text, Color Color, float Width)[] lines;
 		this.LinesLock.EnterReadLock();
 		try
 		{
@@ -118,7 +142,7 @@ public partial class ConsoleControl : UserControl
 		var index = lines.Take(startRow).Sum(elem => elem.Text.Length);
 		for (var row = startRow; row <= endRow; row++)
 		{
-			(var text, var color) = lines[row];
+			(var text, var color, _) = lines[row];
 			if (color == Color.Empty)
 			{
 				color = this.ForeColor;
@@ -161,7 +185,8 @@ public partial class ConsoleControl : UserControl
 
 		this.vScrollBar.LargeChange = Math.Max(this.Height - ClientMargin, 0);
 		this.hScrollBar.LargeChange = Math.Max(this.Width - ClientMargin, 0);
-		this.CalculationScroll();
+
+		this.Invalidate();
 	}
 
 	/// <inheritdoc/>
@@ -227,7 +252,7 @@ public partial class ConsoleControl : UserControl
 				this.Pressed = PressedKey.NONE;
 				var index = 0;
 				StringBuilder sb = new();
-				(string Text, Color Color)[] lines;
+				(string Text, Color Color, float Width)[] lines;
 				this.LinesLock.EnterReadLock();
 				try
 				{
@@ -237,7 +262,7 @@ public partial class ConsoleControl : UserControl
 				{
 					this.LinesLock.ExitReadLock();
 				}
-				foreach ((var text, _) in lines)
+				foreach ((var text, _, _) in lines)
 				{
 					if (index + text.Length > this.SelectedIndex)
 					{
@@ -333,9 +358,7 @@ public partial class ConsoleControl : UserControl
 			this.vScrollBar.Maximum = height;
 			this.vScrollBar.Enabled = true;
 		}
-
-		using var g = this.CreateGraphics();
-		var width = this.Lines.Count > 0 ? (int)this.Lines.Max(elem => g.MeasureString(elem.Text, this.Font, new PointF(0,0), this.StringFormat).Width) : 0;
+		var width = this.Lines.Count > 0 ? (int)this.Lines.Max(elem => elem.Width) : 0;
 		if (width <= this.hScrollBar.LargeChange)
 		{
 			this.hScrollBar.Enabled = false;
