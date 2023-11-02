@@ -16,7 +16,7 @@ namespace furaku.CellsFileGeneralQuery;
 public partial class GeneralQueryControl : UserControl, IExtend
 {
 	/// <inheritdoc/>
-	public virtual string DefaultTabName => "汎用問い合わせ";
+	public virtual string DefaultTabName => "cells_file汎用問い合わせ";
 
 	/// <summary>細胞ファイルアクセサ</summary>
 	protected virtual CellsFileAccessor? CellsFileAccessor { get; set; }
