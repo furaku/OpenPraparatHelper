@@ -75,7 +75,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 						{
 							try
 							{
-								logWriterOrg = new(logfilePath + "_" + logNumber++);
+								logWriterOrg = new(this.AddedNumberFilePath(logfilePath, logNumber++));
 								logWriter = TextWriter.Synchronized(logWriterOrg);
 							}
 							catch (IOException)
@@ -140,7 +140,7 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 											logWriterOrg?.Dispose();
 											try
 											{
-												logWriterOrg = new(logfilePath + "_" + logNumber++);
+												logWriterOrg = new(this.AddedNumberFilePath(logfilePath, logNumber++));
 												logWriter = TextWriter.Synchronized(logWriterOrg);
 											}
 											catch (IOException)
@@ -232,6 +232,18 @@ public partial class OutputAnalyzerControl : UserControl, IExtend
 		this.csvfilePathBox.Enabled = !isExecuting;
 		this.intervalBox.Enabled = !isExecuting;
 		this.executeButton.Text = isExecuting ? "停止(&G)" : "実行(&G)";
+	}
+
+	/// <summary>番号を追加したファイルパスを返す</summary>
+	/// <param name="baseFilePath">ベースのファイルパス</param>
+	/// <param name="number">連番</param>
+	/// <returns>ファイルパス</returns>
+	protected virtual string AddedNumberFilePath(string baseFilePath, int number)
+	{
+		var directory = Path.GetDirectoryName(baseFilePath) ?? string.Empty;
+		var fileName = Path.GetFileNameWithoutExtension(baseFilePath);
+		var extenstion = Path.GetExtension(baseFilePath) ?? string.Empty;
+		return directory + fileName + "_" + number + extenstion;
 	}
 
 	/// <summary>行をCSVに書き出し</summary>
