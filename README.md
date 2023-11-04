@@ -6,8 +6,8 @@ OpenPraparatHelper
 ## Overview
 This application helps to analyze the output of [OepnParapart](https://github.com/A5size/OpenPraparat).
 
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/6c99abd6-d952-43c2-8f60-065a73645f20)
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/1632bbc5-2468-4796-8cbb-8b67c52afe04)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/9f204239-706e-412f-be72-2f55547498db)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/bf19d82a-8630-4ff7-a7cd-790630ac01ab)
 
 ## Requirement
 * .Net 6.0 ~
@@ -32,7 +32,7 @@ ScoopInstall.bat
 ```
 
 ## Last Release
-See [V1.0.0.0](https://github.com/furaku/OpenPraparatHelper/releases/tag/v1.0.0.0)
+See [V2.0.0.0](https://github.com/furaku/OpenPraparatHelper/releases/tag/v2.0.0.0)
 
 ## Detail
 See below for more information.(Sorry Japanese Only)
@@ -50,8 +50,8 @@ OpenPraparatヘルパー
 ## 概要
 このアプリケーション[OepnParapart](https://github.com/A5size/OpenPraparat)の出力の解析を助けるものです。
 
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/6c99abd6-d952-43c2-8f60-065a73645f20)
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/1632bbc5-2468-4796-8cbb-8b67c52afe04)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/9f204239-706e-412f-be72-2f55547498db)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/bf19d82a-8630-4ff7-a7cd-790630ac01ab)
 
 ## 依存要件
 * .Net 6.0 ~
@@ -72,7 +72,7 @@ ScoopInstall.bat
 ```
 
 ## 最新リリース
-[V1.0.0.0](https://github.com/furaku/OpenPraparatHelper/releases/tag/v1.0.0.0)を参照してください。
+[V2.0.0.0](https://github.com/furaku/OpenPraparatHelper/releases/tag/v2.0.0.0)を参照してください。
 
 ## 詳細
 詳しくは以下を参照してください。
