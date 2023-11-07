@@ -6,7 +6,7 @@ OpenPraparatHelper
 ## Overview
 This application helps to analyze the output of [OepnParapart](https://github.com/A5size/OpenPraparat).
 
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/9f204239-706e-412f-be72-2f55547498db)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/c6c38902-44dc-403b-9294-9ce8dec1736a)
 ![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/bf19d82a-8630-4ff7-a7cd-790630ac01ab)
 
 ## Requirement
@@ -50,7 +50,7 @@ OpenPraparatヘルパー
 ## 概要
 このアプリケーション[OepnParapart](https://github.com/A5size/OpenPraparat)の出力の解析を助けるものです。
 
-![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/9f204239-706e-412f-be72-2f55547498db)
+![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/c6c38902-44dc-403b-9294-9ce8dec1736a)
 ![image](https://github.com/furaku/OpenPraparatHelper/assets/6436617/bf19d82a-8630-4ff7-a7cd-790630ac01ab)
 
 ## 依存要件
