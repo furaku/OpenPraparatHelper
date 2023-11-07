@@ -32,7 +32,7 @@ ScoopInstall.bat
 ```
 
 ## Last Release
-See [V2.0.0.1](https://github.com/furaku/OpenPraparatHelper/releases/tag/v2.0.0.1)
+See [V2.0.0.2](https://github.com/furaku/OpenPraparatHelper/releases/tag/v2.0.0.2)
 
 ## Detail
 See below for more information.(Sorry Japanese Only)
@@ -72,7 +72,7 @@ ScoopInstall.bat
 ```
 
 ## 最新リリース
-[V2.0.0.1](https://github.com/furaku/OpenPraparatHelper/releases/tag/v2.0.0.1)を参照してください。
+[V2.0.0.2](https://github.com/furaku/OpenPraparatHelper/releases/tag/v2.0.0.2)を参照してください。
 
 ## 詳細
 詳しくは以下を参照してください。
