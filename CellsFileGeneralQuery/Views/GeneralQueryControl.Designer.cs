@@ -329,6 +329,7 @@ partial class GeneralQueryControl
 		// scalarTypeBox
 		// 
 		scalarTypeBox.DisplayMember = "Name";
+		scalarTypeBox.DropDownStyle = ComboBoxStyle.DropDownList;
 		scalarTypeBox.FormattingEnabled = true;
 		scalarTypeBox.Location = new Point(3, 3);
 		scalarTypeBox.Name = "scalarTypeBox";
